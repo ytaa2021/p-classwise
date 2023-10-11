@@ -1,0 +1,16 @@
+
+/app/
+This directory contains the main application code.
+    __init__.py:
+    Initializes the Flask application and brings together other parts of the application.
+    /courses/:
+    A module dedicated to handling operations related to courses.
+        __init__.py:
+        Initializes the courses blueprint.
+        routes.py:
+        Contains the route (endpoint) definitions for the courses blueprint.
+        data.json:
+        JSON file with mock course data.
+app.py:
+
+The entry point for the Flask application. When this file is run, it starts up the Flask server and serves the app.
