@@ -1,22 +1,43 @@
 import React from 'react';
-import { BottomNavigation, BottomNavigationAction } from '@mui/material';
-import {Restore as RestoreIcon} from '@mui/icons-material'; 
+import { BottomNavigation } from '@mui/material';
+import styled from '@emotion/styled';
 
-function BottomMenu() {
-    const [value, setValue] = React.useState(0);
-  
-    return (
-      <BottomNavigation
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-        }}
-        showLabels
-      >
-        <BottomNavigationAction label="Recents" icon={<RestoreIcon />} />
-        {/* Add more <BottomNavigationAction /> for other menu items */}
-      </BottomNavigation>
-    );
-  }
-  
-  export default BottomMenu;
+const CourseInfo = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 0 16px;
+`;
+
+const Stats = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 0 16px;
+`;
+
+const CourseName = styled.div`
+  font-weight: bold;
+`;
+
+function BottomMenu({ course }) {
+  return (
+    <BottomNavigation showLabels>
+      <CourseInfo>
+        <CourseName>{course.name}</CourseName>
+        <div>{course.professor}</div>
+        <div>{course.description}</div>
+      </CourseInfo>
+      <Stats>
+        <div>Rating: {course.rating}</div>
+        <div>Requirements: {course.requirements.join(', ')}</div>
+      </Stats>
+    </BottomNavigation>
+  );
+}
+
+export default BottomMenu;

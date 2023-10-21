@@ -15,7 +15,7 @@ const courses = [ //curr added courses
     day: 'Tuesday',
     startTime: 10,   
     endTime: 11.5, 
-    title: "Physics 201"
+    title: "Physics 101"
   },
 ];
 const calculateCourseStyle = (course) => {

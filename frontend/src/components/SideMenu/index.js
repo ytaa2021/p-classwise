@@ -1,34 +1,52 @@
 import React from 'react';
-import { Drawer, Tabs, Tab, List, ListItem, ListItemText } from '@mui/material';
+import { Popover, Tabs, Tab, IconButton } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 
 function SideMenu() {
-  const [isOpen, setIsOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState(null);
   const [tabValue, setTabValue] = React.useState(0);
 
   const handleTabChange = (event, newValue) => {
-  setTabValue(newValue);
+    setTabValue(newValue);
   };
-  const toggleDrawer = (open) => (event) => {
-    setIsOpen(open);
+
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
   };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const isOpen = Boolean(anchorEl);
 
   return (
     <div>
-      <button onClick={toggleDrawer(true)}>Open Menu</button>
-      <Drawer anchor="right" open={isOpen} onClose={toggleDrawer(false)}>
+      <div style={{ position: 'fixed', top: 0, right: 0, padding: '10px' }}>
+        <IconButton edge="end" color="inherit" onClick={handleMenuOpen}>
+            <MenuIcon />
+        </IconButton>
+      </div>
+      <Popover
+        anchorEl={anchorEl}
+        open={isOpen}
+        onClose={handleMenuClose}
+        anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
         <Tabs
-        orientation="vertical"
-        variant="scrollable"
-        value={tabValue}
-        onChange={handleTabChange}
+          orientation="vertical"
+          variant="scrollable"
+          value={tabValue}
+          onChange={handleTabChange}
         >
-        <Tab label="Course Search" />
-        <Tab label="Saved Courses (current)" />
-        <Tab label="Saved courses (past)" />
-        <Tab label="Recommender" />
-        {/* Add more <Tab /> for other tabs */}
+          <Tab label="Course Search" />
+          <Tab label="Saved Courses (current)" />
+          <Tab label="Saved courses (past)" />
+          <Tab label="Recommender" />
+          {/* Add more <Tab /> for other tabs */}
         </Tabs>
-      </Drawer>
+      </Popover>
     </div>
   );
 }

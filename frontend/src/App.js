@@ -3,8 +3,20 @@ import { Grid, Paper, Typography, Divider } from '@mui/material';
 import './App.css';
 
 import axios from 'axios';
+import BottomMenu from './components/BottomMenu';
+import SideMenu from './components/SideMenu'
+import Calendar from './components/Calendar'
 
 const BASE_URL = 'TODO: BACKEND URL'; 
+
+const courseData = {
+  name: "ML",
+  professor: "Dr. Dave",
+  description: "Learn to classify wine types and whether people on the titanic died",
+  rating: "4.5/5",
+  requirements: ["Fulfills CS 1/3 Electives"]
+};
+
 
 export const searchCourses = async (searchTerm) => {
   try {
@@ -35,53 +47,14 @@ const courses = [ //curr added courses
     title: "Physics 201"
   },
 ];
-const calculateCourseStyle = (course) => {
-  const hourHeight = 50; // each hour block is this height.
-  const topOffset = (course.startTime - 8) * hourHeight;
-  const courseHeight = (course.endTime - course.startTime) * hourHeight;
-  
-  return {
-    top: `${topOffset}px`,
-    height: `${courseHeight}px`
-  };
-};
-
-const Scheduler = () => {
-  return (
-    <Grid container spacing={2}>
-      {daysOfWeek.map(day => (
-        <Grid item xs={2} key={day}>
-          <Typography variant="h6" gutterBottom>
-            {day}
-          </Typography>
-          <Paper elevation={3} className="dayColumn">
-            {[...Array(24)].map((_, halfHour) => (
-              <div className={halfHour % 2 === 0 ? "hourBlock" : "halfHour"} key={halfHour} style={{top: `${halfHour * 25}px`}}>
-                {halfHour % 2 === 0 && (halfHour / 2 + 8) + ":00"}
-              </div>
-            ))}
-            {courses.filter(course => course.day === day).map(course => (
-              <div 
-                className="course" 
-                style={calculateCourseStyle(course)} 
-                key={course.title}
-              >
-                {course.title}
-              </div>
-            ))}
-          </Paper>
-        </Grid>
-      ))}
-    </Grid>
-  );
-};
-
 
 function App() {
   return (
     <div className="App">
       <h1>My Calendar</h1>
-      <Scheduler />
+      <SideMenu />
+      <Calendar />
+      <BottomMenu course={courseData}/>
     </div>
   );
 }
