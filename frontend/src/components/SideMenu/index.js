@@ -44,7 +44,6 @@ function SideMenu() {
           <Tab label="Saved Courses (current)" />
           <Tab label="Saved courses (past)" />
           <Tab label="Recommender" />
-          {/* Add more <Tab /> for other tabs */}
         </Tabs>
       </Popover>
     </div>
