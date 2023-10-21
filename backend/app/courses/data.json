@@ -1,0 +1,24 @@
+[
+    {
+        "courseNumber": "CSCI136",
+        "courseTitle": "Computer Architecture",
+        "subjectAbbreviation": "PCSC",
+        "departmentExternalId": "CompSci",
+        "institutionExternalId": "PO",
+        "facilityExternalId": "BuildingA",
+        "description": "Selected topics from reduced vs. complex instruction set architecture...",
+        "days": ["Monday", "Wednesday"],
+        "times": ["9:00AM - 10:30AM"]
+    },
+    {
+        "courseNumber": "CSCI143",
+        "courseTitle": "Applied Algorithms",
+        "subjectAbbreviation": "PCSC",
+        "departmentExternalId": "CompSci",
+        "institutionExternalId": "PO",
+        "facilityExternalId": "BuildingB",
+        "description": "In this course we will look at how algorithms are used...",
+        "days": ["Tuesday", "Thursday"],
+        "times": ["1:00PM - 2:30PM"]
+    }
+]
