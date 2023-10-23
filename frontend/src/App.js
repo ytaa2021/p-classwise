@@ -7,6 +7,30 @@ import BottomMenu from './components/BottomMenu';
 import SideMenu from './components/SideMenu'
 import Calendar from './components/Calendar'
 
+//Firebase stuff from their website
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyAKCYOJIZaO4P0gQ2xWrOUejknG4dnmbgQ",
+  authDomain: "p-classwise.firebaseapp.com",
+  projectId: "p-classwise",
+  storageBucket: "p-classwise.appspot.com",
+  messagingSenderId: "504076280646",
+  appId: "1:504076280646:web:af094da163143032123b47",
+  measurementId: "G-ZE814S75F1"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
 const BASE_URL = 'TODO: BACKEND URL'; 
 
 const courseData = {
