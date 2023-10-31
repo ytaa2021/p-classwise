@@ -4,8 +4,8 @@ import './App.css';
 
 import axios from 'axios';
 import BottomMenu from './components/BottomMenu';
-import SideMenu from './components/SideMenu'
-import Calendar from './components/Calendar'
+import SideMenu from './components/SideMenu/sideMenu'
+import Calendar from './components/Calendar/calendar'
 
 //Firebase stuff from their website
 
