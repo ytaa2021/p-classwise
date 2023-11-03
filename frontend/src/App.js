@@ -93,9 +93,9 @@ function App() {
           <SideMenu />
           <Calendar />
         </Grid>
-        <Grid item xs={4}>
+        {/* <Grid item xs={4}>
           <Search />
-        </Grid>
+        </Grid> */}
       </Grid>
       <BottomMenu course={courseData} />
     </div>

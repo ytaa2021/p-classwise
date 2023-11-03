@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { Grid, Paper, Typography, Button } from '@mui/material';
 import Search from '../Search/search';
 import { allCourses } from '../../courses/allCourses';
-import savedSchedules from '../../courses/savedSchedules';
+import calendarData from '../../courses/savedSchedules';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-const initialSchedules = savedSchedules
+const initialSchedules = {
+  1: [],
+  2: [],
+  3: [],
+};
 
 const calculateCourseStyle = (course) => {
   const hourHeight = 50;
@@ -120,7 +124,56 @@ const Scheduler = () => {
             </Paper>
           </Grid>
         ))}
-
+        <Grid item xs={2}>
+          <Search courses={currentCourses} onSearch={handleSearch} />
+          <Typography variant="h6" gutterBottom>
+            All Classes
+          </Typography>
+          {allCourses.map((course) => (
+            <Paper elevation={3} className="classBlock" key={course.title}>
+              <div>
+                <Typography variant="subtitle1" gutterBottom>
+                  {course.title}
+                </Typography>
+                <Typography variant="caption" color="textSecondary">
+                  {`${course.startTime} - ${course.endTime}`}
+                </Typography>
+                {/* Here is where you can add what is shown inside the toggle down for the courses */}
+                {expandedBlocks[course.title] && (
+                  <div>
+                    <Typography variant="body2" gutterBottom>
+                      Professor: {course.professor}
+                    </Typography>
+                    <Typography variant="body2">
+                      Description: {course.description}
+                    </Typography>
+                  </div>
+                )}
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => addCourse(course)}
+                >
+                  +
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="secondary"
+                  onClick={() => removeCourse(course)}
+                >
+                  -
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="primary"
+                  onClick={() => toggleClassBlock(course.title)}
+                >
+                  {expandedBlocks[course.title] ? "V" : "^"}
+                </Button>
+              </div>
+            </Paper>
+          ))}
+        </Grid>
       </Grid>
     </div>
   );
