@@ -79,22 +79,12 @@ const App = () => {
         <Route path="/auth" element={isSignedIn ? <Navigate to="/home" replace /> : <Auth />} />
         
         <Route path="/home" element={isSignedIn ? (
-            <div className="App">
-            <header className="App-header">
-              <img src={logo} className="App-logo" alt="logo" />
-              <p>
-                Edit <code>src/App.js</code> and save to reload.
-              </p>
-              <a
-                className="App-link"
-                href="https://reactjs.org"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Learn React
-              </a>
-            </header>
-          </div>
+                <div className="App">
+                <h1>My Calendar</h1>
+                <SideMenu />
+                <Calendar onUpdateCourse={updateSelectedCourse} />
+                {selectedCourse && <BottomMenu course={selectedCourse} />}
+              </div>
           ) : <Navigate to="/auth" replace />
         } />
 
