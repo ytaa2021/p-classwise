@@ -5,22 +5,15 @@
   "dependencies": {
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
-<<<<<<< HEAD
-=======
     "@mui/icons-material": "^5.14.14",
->>>>>>> david-menus
     "@mui/material": "^5.14.13",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.5.1",
-<<<<<<< HEAD
     "firebase": "^10.5.2",
     "firebaseui": "^6.1.0",
     "moment": "^2.29.4",
-=======
-    "firebase": "^10.5.0",
->>>>>>> david-menus
     "react": "^18.2.0",
     "react-big-calendar": "^1.8.4",
     "react-dom": "^18.2.0",
