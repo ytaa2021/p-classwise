@@ -6,6 +6,7 @@ import axios from 'axios';
 import BottomMenu from './components/BottomMenu';
 import SideMenu from './components/SideMenu/sideMenu'
 import Calendar from './components/Calendar/calendar'
+import Search from './components/Search/search'
 
 //Firebase stuff from their website
 
@@ -72,13 +73,31 @@ const courses = [ //curr added courses
   },
 ];
 
+// function App() {
+//   return (
+//     <div className="App">
+//       <h1>My Calendar</h1>
+//       <SideMenu />
+//       <Calendar />
+//       {/* <Search /> */}
+//       <BottomMenu course={courseData}/>
+//     </div>
+//   );
+// }
 function App() {
   return (
     <div className="App">
-      <h1>My Calendar</h1>
-      <SideMenu />
-      <Calendar />
-      <BottomMenu course={courseData}/>
+      <Grid container spacing={2}>
+        <Grid item xs={8}>
+          <h1>My Calendar</h1>
+          <SideMenu />
+          <Calendar />
+        </Grid>
+        <Grid item xs={4}>
+          <Search />
+        </Grid>
+      </Grid>
+      <BottomMenu course={courseData} />
     </div>
   );
 }
