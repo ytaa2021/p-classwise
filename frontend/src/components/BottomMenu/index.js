@@ -28,13 +28,13 @@ function BottomMenu({ course }) {
   return (
     <BottomNavigation showLabels>
       <CourseInfo>
-        <CourseName>{course.name}</CourseName>
+        <CourseName>{course.title}</CourseName>
         <div>{course.professor}</div>
         <div>{course.description}</div>
       </CourseInfo>
       <Stats>
-        <div>Rating: {course.rating}</div>
-        <div>Requirements: {course.requirements.join(', ')}</div>
+        <div>Rating: {course.startTime}</div>
+        <div>Requirements: {course.endTime}</div>
       </Stats>
     </BottomNavigation>
   );

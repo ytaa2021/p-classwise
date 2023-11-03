@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Grid, Paper, Typography, Divider } from '@mui/material';
 import './App.css';
 
@@ -73,12 +73,17 @@ const courses = [ //curr added courses
 ];
 
 function App() {
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  const updateSelectedCourse = (course) => {
+    setSelectedCourse(course);
+  };
   return (
     <div className="App">
       <h1>My Calendar</h1>
       <SideMenu />
-      <Calendar />
-      <BottomMenu course={courseData}/>
+      <Calendar onUpdateCourse={updateSelectedCourse} />
+      {selectedCourse && <BottomMenu course={selectedCourse} />}
     </div>
   );
 }
