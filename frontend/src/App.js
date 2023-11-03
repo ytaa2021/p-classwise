@@ -1,5 +1,8 @@
-import React from 'react';
-import { Grid, Paper, Typography, Divider } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Navigate, Routes } from 'react-router-dom';
+import { auth } from './firebaseConfig';
+import Auth from './Auth';
+import { Grid, Paper, Typography } from '@mui/material';
 import './App.css';
 
 import axios from 'axios';
@@ -77,13 +80,34 @@ const Scheduler = () => {
 };
 
 
-function App() {
+const App = () => {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    const unregisterAuthObserver = auth.onAuthStateChanged(
+      (user) => setIsSignedIn(!!user)
+    );    
+    return () => unregisterAuthObserver(); // Cleanup on unmount
+  }, []);
+
   return (
-    <div className="App">
-      <h1>My Calendar</h1>
-      <Scheduler />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/auth" element={isSignedIn ? <Navigate to="/home" replace /> : <Auth />} />
+        
+        <Route path="/home" element={isSignedIn ? (
+            <div className="App">
+              <h1>My Calendar</h1>
+              <Scheduler />
+            </div>
+          ) : <Navigate to="/auth" replace />
+        } />
+
+        <Route path="/" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    </Router>
   );
 }
+
 
 export default App;
