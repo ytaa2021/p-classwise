@@ -2,9 +2,9 @@
     position: relative;
   }
   
-  .remove-button {
-    position: absolute;
-    top: 0;
-    right: 0;
-  }
+.remove-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
   

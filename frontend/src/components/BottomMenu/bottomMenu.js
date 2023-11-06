@@ -28,13 +28,23 @@ function BottomMenu({ course }) {
   return (
     <BottomNavigation showLabels>
       <CourseInfo>
-        <CourseName>{course.name}</CourseName>
-        <div>{course.professor}</div>
-        <div>{course.description}</div>
+        {course ? (
+          <>
+            <CourseName>{course.title}</CourseName>
+            <div>Professor: {course.professor}</div>
+            <div>Description: {course.description}</div>
+          </>
+        ) : (
+          <div>Select a class</div>
+        )}
       </CourseInfo>
       <Stats>
-        <div>Rating: {course.rating}</div>
-        <div>Requirements: {course.requirements.join(', ')}</div>
+        {course ? (
+          <>
+            <div>Rating: {course.rating}</div>
+            <div>Requirements: {course.requirements ? course.requirements.join(', ') : 'N/A'}</div>
+          </>
+        ) : null}
       </Stats>
     </BottomNavigation>
   );

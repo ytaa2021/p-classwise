@@ -6,11 +6,11 @@ import { allCourses } from '../../courses/allCourses';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-const initialSchedules = {
-  1: [],
-  2: [],
-  3: [],
-};
+// const initialSchedules = {
+//   1: [],
+//   2: [],
+//   3: [],
+// };
 
 const calculateCourseStyle = (course) => {
   const hourHeight = 50;
@@ -23,44 +23,9 @@ const calculateCourseStyle = (course) => {
   };
 };
 
-const Scheduler = () => {
+const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules }) => {
 
   const [activeCalendar, setActiveCalendar] = useState(1);
-  const [calendars, setCalendars] = useState(initialSchedules);
-  const currentCourses = calendars[activeCalendar];
-
-  const [filteredCourses, setFilteredCourses] = useState([]);
-  const [addedCourses, setAddedCourses] = useState([]);
-  const [expandedBlocks, setExpandedBlocks] = useState({});
-
-  const handleSearch = (searchTerm) => {
-    const filteredCourses = currentCourses.filter((course) =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredCourses(filteredCourses);
-  };
-
-  const addCourse = (course) => {
-    setCalendars((prevCalendars) => ({
-      ...prevCalendars,
-      [activeCalendar]: [...prevCalendars[activeCalendar], course],
-    }));
-  };
-
-  const removeCourse = (course) => {
-    setCalendars((prevCalendars) => ({
-      ...prevCalendars,
-      [activeCalendar]: prevCalendars[activeCalendar].filter((c) => c !== course),
-    }));
-  };
-
-  const toggleClassBlock = (title) => {
-    setExpandedBlocks({
-      ...expandedBlocks,
-      [title]: !expandedBlocks[title],
-    });
-  };
-
   const coursesByDay = {};
 
   daysOfWeek.forEach((day) => {
@@ -75,26 +40,6 @@ const Scheduler = () => {
 
   return (
     <div>
-      <div>
-        <Button
-          variant={activeCalendar === 1 ? "contained" : "outlined"}
-          onClick={() => switchCalendar(1)}
-        >
-          Schedule 1
-        </Button>
-        <Button
-          variant={activeCalendar === 2 ? "contained" : "outlined"}
-          onClick={() => switchCalendar(2)}
-        >
-          Schedule 2
-        </Button>
-        <Button
-          variant={activeCalendar === 3 ? "contained" : "outlined"}
-          onClick={() => switchCalendar(3)}
-        >
-          Schedule 3
-        </Button>
-      </div>
       <Grid container spacing={1}>
         {daysOfWeek.map((day) => (
           <Grid item xs={2} key={day}>
@@ -132,7 +77,7 @@ const Scheduler = () => {
           </Grid>
         ))}
         <Grid item xs={2}>
-        <Search
+        {/* <Search
             courses={currentCourses}
             onSearch={handleSearch}
             allCourses={allCourses}
@@ -140,7 +85,7 @@ const Scheduler = () => {
             addCourse={addCourse}
             removeCourse={removeCourse}
             toggleClassBlock={toggleClassBlock}
-          />
+          /> */}
           {/* <Search courses={currentCourses} onSearch={handleSearch} /> */}
         </Grid>
       </Grid>

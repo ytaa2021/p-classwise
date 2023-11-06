@@ -1,12 +1,14 @@
-import React from 'react';
-import { Grid, Paper, Typography, Divider } from '@mui/material';
+import React, { useState } from 'react';
+import { Grid, Paper, Typography, Divider, Button } from '@mui/material';
 import './App.css';
 
 import axios from 'axios';
-import BottomMenu from './components/BottomMenu';
+import BottomMenu from './components/BottomMenu/bottomMenu';
 import SideMenu from './components/SideMenu/sideMenu'
 import Calendar from './components/Calendar/calendar'
 import Search from './components/Search/search'
+import { allCourses } from './courses/allCourses';
+
 
 //Firebase stuff from their website
 
@@ -85,19 +87,128 @@ const courses = [ //curr added courses
 //   );
 // }
 function App() {
+  const initialSchedules = {
+    1: [],
+    2: [],
+    3: [],
+  };
+  
+  const [activeCalendar, setActiveCalendar] = useState(1);
+  const [calendars, setCalendars] = useState(initialSchedules);
+  const currentCourses = calendars[activeCalendar];
+
+  const [filteredCourses, setFilteredCourses] = useState([]);
+  const [addedCourses, setAddedCourses] = useState([]);
+  const [expandedBlocks, setExpandedBlocks] = useState({});
+
+  // function for the search filtering, not fully implemented
+  const handleSearch = (searchTerm) => {
+    const filteredCourses = currentCourses.filter((course) =>
+      course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredCourses(filteredCourses);
+  };
+
+  // below are the functions for adding to our 3 schedules, need to define here to access in both calendar and search 
+  const addCourse = (course) => {
+    setCalendars((prevCalendars) => ({
+      ...prevCalendars,
+      [activeCalendar]: [...prevCalendars[activeCalendar], course],
+    }));
+  };
+
+  const removeCourse = (course) => {
+    setCalendars((prevCalendars) => ({
+      ...prevCalendars,
+      [activeCalendar]: prevCalendars[activeCalendar].filter((c) => c !== course),
+    }));
+  };
+
+  const toggleClassBlock = (title) => {
+    setExpandedBlocks({
+      ...expandedBlocks,
+      [title]: !expandedBlocks[title],
+    });
+  };
+
+  const coursesByDay = {};
+
+  daysOfWeek.forEach((day) => {
+    coursesByDay[day] = currentCourses.filter((course) =>
+      Array.isArray(course.day) ? course.day.includes(day) : course.day === day
+    );
+  });
+
+  // for the buttons that switch between 3 schedules
+  const switchCalendar = (calendarNumber) => {
+    setActiveCalendar(calendarNumber);
+  };
+
+  // for making it show up on bottom menu
+  const [selectedClass, setSelectedClass] = useState(null);
+  const handleClassClick = (course) => {
+    setSelectedClass(course);
+  };
+
   return (
     <div className="App">
       <Grid container spacing={2}>
-        <Grid item xs={8}>
+        <Grid item xs={12}>
           <h1>My Calendar</h1>
-          <SideMenu />
-          <Calendar />
+          {/* buttons to switch between which of the 3 schedules looking at */}
+          <div>
+            <Button
+              variant={activeCalendar === 1 ? "contained" : "outlined"}
+              onClick={() => switchCalendar(1)}
+            >
+              Schedule 1
+            </Button>
+            <Button
+              variant={activeCalendar === 2 ? "contained" : "outlined"}
+              onClick={() => switchCalendar(2)}
+            >
+              Schedule 2
+            </Button>
+            <Button
+              variant={activeCalendar === 3 ? "contained" : "outlined"}
+              onClick={() => switchCalendar(3)}
+            >
+              Schedule 3
+            </Button>
+          </div>
+          <SideMenu/>
         </Grid>
-        {/* <Grid item xs={4}>
-          <Search />
-        </Grid> */}
       </Grid>
-      <BottomMenu course={courseData} />
+      {/* container spacing is to make the calendar and search next to each other */}
+      <Grid container spacing={0}>
+        <Grid item xs={8}>
+          {/* rendering of the actual schedule grid */}
+          <div className="custom-container"></div>
+            <Calendar
+              currentCourses={currentCourses}
+              addCourse={addCourse}
+              removeCourse={removeCourse}
+              initialSchedules={initialSchedules}
+            />
+            <div/>
+        </Grid>
+        <Grid item xs={4}>
+          {/* rendering of the search bar -- need to integrate with sidemenu */}
+          <div className="custom-container"></div>
+          <Search
+            courses={currentCourses}
+            onSearch={handleSearch}
+            allCourses={allCourses}
+            expandedBlocks={expandedBlocks}
+            addCourse={addCourse}
+            removeCourse={removeCourse}
+            toggleClassBlock={toggleClassBlock}
+            handleClassClick={handleClassClick}
+          />
+          <div/>
+        </Grid>
+      </Grid>
+      <BottomMenu course={selectedClass} handleClassClick={handleClassClick} />
     </div>
   );
 }

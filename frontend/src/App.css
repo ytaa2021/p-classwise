@@ -46,3 +46,8 @@
 .GridContainer {
   justify-content: center;
 }
+
+.custom-container {
+  display: flex; /* trying to get rid of the space between them*/
+  justify-content: space-between; 
+}
