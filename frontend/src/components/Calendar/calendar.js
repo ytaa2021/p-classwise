@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Grid, Paper, Typography, Button } from '@mui/material';
 import Search from '../Search/search';
 import { allCourses } from '../../courses/allCourses';
-import calendarData from '../../courses/savedSchedules';
+
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -24,15 +24,14 @@ const calculateCourseStyle = (course) => {
 };
 
 const Scheduler = () => {
+
+  const [activeCalendar, setActiveCalendar] = useState(1);
+  const [calendars, setCalendars] = useState(initialSchedules);
+  const currentCourses = calendars[activeCalendar];
+
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
-  const [activeCalendar, setActiveCalendar] = useState(1);
-
-  // Create a mapping of calendars and their respective courses
-  const [calendars, setCalendars] = useState(initialSchedules);
-
-  const currentCourses = calendars[activeCalendar];
 
   const handleSearch = (searchTerm) => {
     const filteredCourses = currentCourses.filter((course) =>
@@ -96,7 +95,7 @@ const Scheduler = () => {
           Schedule 3
         </Button>
       </div>
-      <Grid container spacing={2}>
+      <Grid container spacing={1}>
         {daysOfWeek.map((day) => (
           <Grid item xs={2} key={day}>
             <Typography variant="h6" gutterBottom>
@@ -119,60 +118,30 @@ const Scheduler = () => {
                   key={course.title}
                 >
                   {course.title}
+                  <Button
+                    className="remove-button"
+                    variant="text"
+                    color="secondary"
+                    onClick={() => removeCourse(course)}
+                  >
+                    x
+                  </Button>
                 </div>
               ))}
             </Paper>
           </Grid>
         ))}
         <Grid item xs={2}>
-          <Search courses={currentCourses} onSearch={handleSearch} />
-          <Typography variant="h6" gutterBottom>
-            All Classes
-          </Typography>
-          {allCourses.map((course) => (
-            <Paper elevation={3} className="classBlock" key={course.title}>
-              <div>
-                <Typography variant="subtitle1" gutterBottom>
-                  {course.title}
-                </Typography>
-                <Typography variant="caption" color="textSecondary">
-                  {`${course.startTime} - ${course.endTime}`}
-                </Typography>
-                {/* Here is where you can add what is shown inside the toggle down for the courses */}
-                {expandedBlocks[course.title] && (
-                  <div>
-                    <Typography variant="body2" gutterBottom>
-                      Professor: {course.professor}
-                    </Typography>
-                    <Typography variant="body2">
-                      Description: {course.description}
-                    </Typography>
-                  </div>
-                )}
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => addCourse(course)}
-                >
-                  +
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => removeCourse(course)}
-                >
-                  -
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  onClick={() => toggleClassBlock(course.title)}
-                >
-                  {expandedBlocks[course.title] ? "V" : "^"}
-                </Button>
-              </div>
-            </Paper>
-          ))}
+        <Search
+            courses={currentCourses}
+            onSearch={handleSearch}
+            allCourses={allCourses}
+            expandedBlocks={expandedBlocks}
+            addCourse={addCourse}
+            removeCourse={removeCourse}
+            toggleClassBlock={toggleClassBlock}
+          />
+          {/* <Search courses={currentCourses} onSearch={handleSearch} /> */}
         </Grid>
       </Grid>
     </div>

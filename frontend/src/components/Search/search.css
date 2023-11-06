@@ -1,0 +1,10 @@
+.v-icon {
+    position: 'absolute';
+    bottom: 0;
+    right: 0;
+    color: 'grey';
+    backgroundColor: 'transparent';
+    border: 'none';
+    padding: 0;
+    cursor: 'pointer';
+  }
