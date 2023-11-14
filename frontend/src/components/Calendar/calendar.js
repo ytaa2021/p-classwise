@@ -23,7 +23,7 @@ const calculateCourseStyle = (course) => {
   };
 };
 
-const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules }) => {
+const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules , handleClassClick}) => {
 
   const [activeCalendar, setActiveCalendar] = useState(1);
   const coursesByDay = {};
@@ -61,6 +61,7 @@ const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules }
                   className="course"
                   style={calculateCourseStyle(course)}
                   key={course.title}
+                  onClick={() => handleClassClick(course)}
                 >
                   {course.title}
                   <Button

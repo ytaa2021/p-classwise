@@ -189,6 +189,7 @@ function App() {
               addCourse={addCourse}
               removeCourse={removeCourse}
               initialSchedules={initialSchedules}
+              handleClassClick={handleClassClick}
             />
             <div/>
         </Grid>
