@@ -7,6 +7,7 @@ import Search from '../Search/search';
 import { allCourses } from '../../courses/allCourses';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BottomMenu from '../BottomMenu';
+import calendarData from '../../courses/savedSchedules';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -46,13 +47,14 @@ const Scheduler = ({onUpdateCourse}) => {
     new Array(allCourses.length).fill(false), // For schedule 2
     new Array(allCourses.length).fill(false), // For schedule 3
   ]);
-  const [currentScheduleIndex, setCurrentScheduleIndex] = useState(0);
   const [currentCourses, setCurrentCourses] = useState([...initialCourses]);
-  const [savedCourses, setSavedCourses] = useState([
-    [], // For schedule 1
-    [], // For schedule 2
-    [], // For schedule 3
-  ]);
+
+  const [activeCalendar, setActiveCalendar] = useState(1);
+  const initialSchedules = {
+    1: [],
+    2: [],
+    3: [],
+  };
 
   // combine initialCourses and addedCourses into currentCourses
   //const currentCourses = [...initialCourses, ...addedCourses];
@@ -70,8 +72,7 @@ const Scheduler = ({onUpdateCourse}) => {
   };
 
   const addCourse = (course) => {
-    const updatedSavedCourses = [...savedCourses];
-    const selectedCourses = updatedSavedCourses[currentScheduleIndex];
+    const selectedCourses = initialSchedules[activeCalendar];
     
     // If the course is already present in the selected schedule, remove it
     const existingCourseIndex = selectedCourses.findIndex((c) => c.title === course.title);
@@ -80,44 +81,39 @@ const Scheduler = ({onUpdateCourse}) => {
     }
     
     // Update the savedCourses state
-    updatedSavedCourses[currentScheduleIndex] = selectedCourses;
-    setSavedCourses(updatedSavedCourses);
-    //addCourseToCalender(course);
+    initialSchedules[activeCalendar] = selectedCourses;
+    console.log(initialSchedules[activeCalendar]);
   };
 
   const removeCourse = (course) => {
-    const updatedSavedCourses = [...savedCourses];
-    const selectedCourses = updatedSavedCourses[currentScheduleIndex];
+    const selectedCourses = initialSchedules[activeCalendar];
 
     const existingCourseIndex = selectedCourses.findIndex((c) => c.title === course.title);
-    if(existingCourseIndex !== -1){
+    if (existingCourseIndex === -1) {
       selectedCourses.splice(existingCourseIndex, 1);
     }
 
-    updatedSavedCourses[currentScheduleIndex] = selectedCourses;
-    setSavedCourses(updatedSavedCourses);
+    initialSchedules[activeCalendar] = selectedCourses;
+    //setSavedCourses(updatedSavedCourses);
   }
 
   const addCourseToCalender = (course) => {
-    const updatedCheckboxesStates = [...checkboxesStates];
-    const courseIndex = allCourses.findIndex((c) => c.title === course.title);
-    updatedCheckboxesStates[currentScheduleIndex][courseIndex] = !updatedCheckboxesStates[currentScheduleIndex][courseIndex];
-    setCheckboxesStates(updatedCheckboxesStates);
+    // const calIndex = activeCalendar - 1;
+    // const updatedCheckboxesStates = [...checkboxesStates];
+    // const courseIndex = allCourses.findIndex((c) => c.title === course.title);
+    // updatedCheckboxesStates[calIndex][courseIndex] = !updatedCheckboxesStates[calIndex][courseIndex];
+    // setCheckboxesStates(updatedCheckboxesStates);
 
-    const updatedCheck = checked.map((item, index) => (item === course ? !item : item));
-    setChecked(updatedCheck);
+    // const updatedCheck = checked.map((item, index) => (item === course ? !item : item));
+    // setChecked(updatedCheck);
 
-    if (updatedCheckboxesStates[currentScheduleIndex][courseIndex]) {
-      setAddedCourses([...addedCourses, course]);
-    } else {
-      const updatedCourses = addedCourses.filter((addedCourse) => addedCourse.title !== course.title);
-      setAddedCourses(updatedCourses);
-    }
+    // if (updatedCheckboxesStates[calIndex][courseIndex]) {
+    //   setAddedCourses([...addedCourses, course]);
+    // } else {
+    //   const updatedCourses = addedCourses.filter((addedCourse) => addedCourse.title !== course.title);
+    //   setAddedCourses(updatedCourses);
+    // }
   };
-
-  const handleScheduleChange = (event) => {
-    setCurrentScheduleIndex(event.target.value);
-  }
 
   const toggleClassBlock = (title) => {
     setExpandedBlocks({
@@ -136,16 +132,42 @@ const Scheduler = ({onUpdateCourse}) => {
     );
   });
 
-  useEffect(() => {
-    // Merge initialCourses and selected courses for the current schedule into currentCourses
-    const selectedCourses = checkboxesStates[currentScheduleIndex]
-      .map((isChecked, index) => (isChecked ? allCourses[index] : null))
-      .filter((course) => course !== null);
-      setAddedCourses([...initialCourses, ...selectedCourses]);
-  }
-  , [checkboxesStates, currentScheduleIndex]);
+  // useEffect(() => {
+  //   // Merge initialCourses and selected courses for the current schedule into currentCourses
+  //   const selectedCourses = checkboxesStates[activeCalendar-1]
+  //     .map((isChecked, index) => (isChecked ? allCourses[index] : null))
+  //     .filter((course) => course !== null);
+  //     setAddedCourses([...initialCourses, ...selectedCourses]);
+  // }
+  // , [checkboxesStates, activeCalendar-1]);
+
+  const switchCalendar = (calendarNumber) => {
+    setActiveCalendar(calendarNumber);
+  };
 
   return (
+    <div>
+    <div>
+      <Button
+        variant={activeCalendar === 1 ? "contained" : "outlined"}
+        onClick={() => switchCalendar(1)}
+      >
+        Schedule 1
+      </Button>
+      <Button
+        variant={activeCalendar === 2 ? "contained" : "outlined"}
+        onClick={() => switchCalendar(2)}
+      >
+        Schedule 2
+      </Button>
+      <Button
+        variant={activeCalendar === 3 ? "contained" : "outlined"}
+        onClick={() => switchCalendar(3)}
+      >
+        Schedule 3
+      </Button>
+    </div>
+    
     <Grid container spacing={2}>
       {daysOfWeek.map((day) => (
         <Grid item xs={2} key={day}>
@@ -211,7 +233,7 @@ const Scheduler = ({onUpdateCourse}) => {
                 color="primary"
                 onClick={() => addCourse(course)}
                 style={{marginBottom: ".5em"}}
-                checked={checkboxesStates[currentScheduleIndex][index]}
+                checked={checkboxesStates[activeCalendar-1][index]}
               >
                 +
               </Button>
@@ -247,7 +269,7 @@ const Scheduler = ({onUpdateCourse}) => {
           <Typography>Saved Courses &#40;Current&#41;</Typography>
         </AccordionSummary>
           <AccordionDetails>
-          {savedCourses[currentScheduleIndex].map((course, index) => (
+          {initialSchedules[activeCalendar].map((course, index) => (
             <Paper elevation={3} className="classBlock" key={course.title} style={{marginBottom: ".5em"}}>
               <div>
                 <Typography variant="subtitle1" gutterBottom>
@@ -261,7 +283,7 @@ const Scheduler = ({onUpdateCourse}) => {
                   color="primary"
                   onChange={() => addCourseToCalender(course)}
                   style={{marginBottom: ".5em"}}
-                  checked={checkboxesStates[currentScheduleIndex][course]}
+                  checked={checkboxesStates[activeCalendar-1][course]}
                 />
                 <Button
                 variant="outlined"
@@ -294,29 +316,6 @@ const Scheduler = ({onUpdateCourse}) => {
           expandIcon={<ExpandMoreIcon />}
           id="panel1a-header"
         >
-          <Typography>Schedules</Typography>
-        </AccordionSummary>
-          <AccordionDetails>
-            <FormControl>
-              <RadioGroup
-                defaultValue="0"
-                name="radio-buttons-group"
-                value={currentScheduleIndex}
-                onChange={handleScheduleChange}
-              >
-                <FormControlLabel value="0" control={<Radio />} label="Schedule 1" />
-                <FormControlLabel value="1" control={<Radio />} label="Schedule 2" />
-                <FormControlLabel value="2" control={<Radio />} label="Schedule 3" />
-              </RadioGroup>
-            </FormControl>
-          </AccordionDetails>
-      </Accordion>
-
-      <Accordion>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          id="panel1a-header"
-        >
           <Typography>Recommender</Typography>
         </AccordionSummary>
           <AccordionDetails>
@@ -327,6 +326,8 @@ const Scheduler = ({onUpdateCourse}) => {
       </Accordion>
       </Grid>
     </Grid>
+  </div>
+
   );
 };
 
