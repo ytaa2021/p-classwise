@@ -7,7 +7,6 @@ import Search from '../Search/search';
 import { allCourses } from '../../courses/allCourses';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BottomMenu from '../BottomMenu';
-import calendarData from '../../courses/savedSchedules';
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -47,14 +46,14 @@ const Scheduler = ({onUpdateCourse}) => {
     new Array(allCourses.length).fill(false), // For schedule 2
     new Array(allCourses.length).fill(false), // For schedule 3
   ]);
+  const [activeCalendar, setActiveCalendar] = useState(0);
   const [currentCourses, setCurrentCourses] = useState([...initialCourses]);
-
-  const [activeCalendar, setActiveCalendar] = useState(1);
-  const initialSchedules = {
-    1: [],
-    2: [],
-    3: [],
-  };
+  const [savedCalendars, setSavedCalendar] = useState([
+    [], // For schedule 1
+    [], // For schedule 2
+    [], // For schedule 3
+  ]);
+  const [savedCourses, setSavedCourses] = useState([]);
 
   // combine initialCourses and addedCourses into currentCourses
   //const currentCourses = [...initialCourses, ...addedCourses];
@@ -72,47 +71,70 @@ const Scheduler = ({onUpdateCourse}) => {
   };
 
   const addCourse = (course) => {
-    const selectedCourses = initialSchedules[activeCalendar];
+    const updatedSavedCalendar = [...savedCalendars];
+    const selectedCourses = updatedSavedCalendar[activeCalendar];
+
+    const updatedSavedCourses = [...savedCourses];
+
+    // If the course is already present in the saved courses, remove it
+    const existingCourseIndex0 = updatedSavedCourses.findIndex((c) => c.title === course.title);
+    if (existingCourseIndex0 === -1) {
+      updatedSavedCourses.push(course);
+    }
     
-    // If the course is already present in the selected schedule, remove it
+    // If the course is already present in the selected schedule, add it
     const existingCourseIndex = selectedCourses.findIndex((c) => c.title === course.title);
     if (existingCourseIndex === -1) {
       selectedCourses.push(course);
     }
     
-    // Update the savedCourses state
-    initialSchedules[activeCalendar] = selectedCourses;
-    console.log(initialSchedules[activeCalendar]);
+    // Update the savedCalendar state
+    updatedSavedCalendar[activeCalendar] = selectedCourses;
+    setSavedCalendar(updatedSavedCalendar);
+    //addCourseToCalender(course);
+
+    setSavedCourses(updatedSavedCourses);
+    console.log(savedCourses)
   };
 
   const removeCourse = (course) => {
-    const selectedCourses = initialSchedules[activeCalendar];
+    const updatedSavedCalendar = [...savedCalendars];
+    const selectedCourses = updatedSavedCalendar[activeCalendar];
+
+    const updatedSavedCourses = [...savedCourses];
+
+    // If the course is already present in the saved courses, remove it
+    const existingCourseIndex0 = updatedSavedCourses.findIndex((c) => c.title === course.title);
+    if (existingCourseIndex0 === -1) {
+      updatedSavedCourses.push(course);
+    }
 
     const existingCourseIndex = selectedCourses.findIndex((c) => c.title === course.title);
-    if (existingCourseIndex === -1) {
+    if(existingCourseIndex !== -1){
       selectedCourses.splice(existingCourseIndex, 1);
     }
 
-    initialSchedules[activeCalendar] = selectedCourses;
-    //setSavedCourses(updatedSavedCourses);
+    updatedSavedCalendar[activeCalendar] = selectedCourses;
+    setSavedCalendar(updatedSavedCalendar);
+
+    setSavedCourses(updatedSavedCourses);
   }
 
   const addCourseToCalender = (course) => {
-    // const calIndex = activeCalendar - 1;
-    // const updatedCheckboxesStates = [...checkboxesStates];
-    // const courseIndex = allCourses.findIndex((c) => c.title === course.title);
-    // updatedCheckboxesStates[calIndex][courseIndex] = !updatedCheckboxesStates[calIndex][courseIndex];
-    // setCheckboxesStates(updatedCheckboxesStates);
+    const updatedCheckboxesStates = [...checkboxesStates];
+    const courseIndex = allCourses.findIndex((c) => c.title === course.title);
+    updatedCheckboxesStates[activeCalendar][courseIndex] = !updatedCheckboxesStates[activeCalendar][courseIndex];
+    setCheckboxesStates(updatedCheckboxesStates);
 
-    // const updatedCheck = checked.map((item, index) => (item === course ? !item : item));
-    // setChecked(updatedCheck);
+    const updatedCheck = checked.map((item, index) => (item === course ? !item : item));
+    setChecked(updatedCheck);
 
-    // if (updatedCheckboxesStates[calIndex][courseIndex]) {
-    //   setAddedCourses([...addedCourses, course]);
-    // } else {
-    //   const updatedCourses = addedCourses.filter((addedCourse) => addedCourse.title !== course.title);
-    //   setAddedCourses(updatedCourses);
-    // }
+    if (updatedCheckboxesStates[activeCalendar][courseIndex]) {
+      setAddedCourses([...addedCourses, course]);
+    } else {
+      const updatedCourses = addedCourses.filter((addedCourse) => addedCourse.title !== course.title);
+      setAddedCourses(updatedCourses);
+    }
   };
 
   const toggleClassBlock = (title) => {
@@ -132,37 +154,36 @@ const Scheduler = ({onUpdateCourse}) => {
     );
   });
 
-  // useEffect(() => {
-  //   // Merge initialCourses and selected courses for the current schedule into currentCourses
-  //   const selectedCourses = checkboxesStates[activeCalendar-1]
-  //     .map((isChecked, index) => (isChecked ? allCourses[index] : null))
-  //     .filter((course) => course !== null);
-  //     setAddedCourses([...initialCourses, ...selectedCourses]);
-  // }
-  // , [checkboxesStates, activeCalendar-1]);
+  useEffect(() => {
+    // Merge initialCourses and selected courses for the current schedule into currentCourses
+    const selectedCourses = checkboxesStates[activeCalendar]
+      .map((isChecked, index) => (isChecked ? allCourses[index] : null))
+      .filter((course) => course !== null);
+      setAddedCourses([...initialCourses, ...selectedCourses]);
+  }
+  , [checkboxesStates, activeCalendar]);
 
   const switchCalendar = (calendarNumber) => {
     setActiveCalendar(calendarNumber);
   };
-
   return (
     <div>
     <div>
       <Button
-        variant={activeCalendar === 1 ? "contained" : "outlined"}
-        onClick={() => switchCalendar(1)}
+        variant={activeCalendar === 0 ? "contained" : "outlined"}
+        onClick={() => switchCalendar(0)}
       >
         Schedule 1
       </Button>
       <Button
-        variant={activeCalendar === 2 ? "contained" : "outlined"}
-        onClick={() => switchCalendar(2)}
+        variant={activeCalendar === 1 ? "contained" : "outlined"}
+        onClick={() => switchCalendar(1)}
       >
         Schedule 2
       </Button>
       <Button
-        variant={activeCalendar === 3 ? "contained" : "outlined"}
-        onClick={() => switchCalendar(3)}
+        variant={activeCalendar === 2 ? "contained" : "outlined"}
+        onClick={() => switchCalendar(2)}
       >
         Schedule 3
       </Button>
@@ -233,7 +254,7 @@ const Scheduler = ({onUpdateCourse}) => {
                 color="primary"
                 onClick={() => addCourse(course)}
                 style={{marginBottom: ".5em"}}
-                checked={checkboxesStates[activeCalendar-1][index]}
+                checked={checkboxesStates[activeCalendar][index]}
               >
                 +
               </Button>
@@ -269,7 +290,7 @@ const Scheduler = ({onUpdateCourse}) => {
           <Typography>Saved Courses &#40;Current&#41;</Typography>
         </AccordionSummary>
           <AccordionDetails>
-          {initialSchedules[activeCalendar].map((course, index) => (
+          {savedCourses.map((course, index) => (
             <Paper elevation={3} className="classBlock" key={course.title} style={{marginBottom: ".5em"}}>
               <div>
                 <Typography variant="subtitle1" gutterBottom>
@@ -283,7 +304,7 @@ const Scheduler = ({onUpdateCourse}) => {
                   color="primary"
                   onChange={() => addCourseToCalender(course)}
                   style={{marginBottom: ".5em"}}
-                  checked={checkboxesStates[activeCalendar-1][course]}
+                  checked={checkboxesStates[activeCalendar][course]}
                 />
                 <Button
                 variant="outlined"
@@ -326,8 +347,7 @@ const Scheduler = ({onUpdateCourse}) => {
       </Accordion>
       </Grid>
     </Grid>
-  </div>
-
+    </div>
   );
 };
 
