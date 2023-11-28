@@ -1,10 +1,33 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Navigate, Routes } from 'react-router-dom';
+import { auth } from './firebaseConfig';
+import Auth from './Auth';
 import { Grid, Paper, Typography, Divider } from '@mui/material';
 import './App.css';
 
 import axios from 'axios';
+import BottomMenu from './components/BottomMenu';
+import SideMenu from './components/SideMenu/sideMenu'
+import Calendar from './components/Calendar/calendar'
+
+//Firebase stuff from their website
+
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that we want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
 const BASE_URL = 'TODO: BACKEND URL'; 
+
+const courseData = {
+  name: "ML",
+  professor: "Dr. Dave",
+  description: "Learn to classify wine types and whether people on the titanic died",
+  rating: "4.5/5",
+  requirements: ["Fulfills CS 1/3 Electives"]
+};
+
 
 export const searchCourses = async (searchTerm) => {
   try {
@@ -13,7 +36,7 @@ export const searchCourses = async (searchTerm) => {
     });
     return response.data;
   } catch (error) {
-    console.error("Error fetching courses", error);
+    console.error("Error getting courses", error);
     return [];
   }
 }
@@ -35,55 +58,41 @@ const courses = [ //curr added courses
     title: "Physics 201"
   },
 ];
-const calculateCourseStyle = (course) => {
-  const hourHeight = 50; // each hour block is this height.
-  const topOffset = (course.startTime - 8) * hourHeight;
-  const courseHeight = (course.endTime - course.startTime) * hourHeight;
-  
-  return {
-    top: `${topOffset}px`,
-    height: `${courseHeight}px`
+
+const App = () => {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+
+  useEffect(() => {
+    const unregisterAuthObserver = auth.onAuthStateChanged(
+      (user) => setIsSignedIn(!!user)
+    );    
+    return () => unregisterAuthObserver(); // Cleanup on unmount
+  }, []);
+  const [selectedCourse, setSelectedCourse] = useState(null);
+
+  const updateSelectedCourse = (course) => {
+    setSelectedCourse(course);
   };
-};
-
-const Scheduler = () => {
   return (
-    <Grid container spacing={2}>
-      {daysOfWeek.map(day => (
-        <Grid item xs={2} key={day}>
-          <Typography variant="h6" gutterBottom>
-            {day}
-          </Typography>
-          <Paper elevation={3} className="dayColumn">
-            {[...Array(24)].map((_, halfHour) => (
-              <div className={halfHour % 2 === 0 ? "hourBlock" : "halfHour"} key={halfHour} style={{top: `${halfHour * 25}px`}}>
-                {halfHour % 2 === 0 && (halfHour / 2 + 8) + ":00"}
+    <Router>
+      <Routes>
+        <Route path="/auth" element={isSignedIn ? <Navigate to="/home" replace /> : <Auth />} />
+        
+        <Route path="/home" element={isSignedIn ? (
+                <div className="App">
+                <h1>My Calendar</h1>
+                <SideMenu />
+                <Calendar onUpdateCourse={updateSelectedCourse} />
+                {selectedCourse && <BottomMenu course={selectedCourse} />}
               </div>
-            ))}
-            {courses.filter(course => course.day === day).map(course => (
-              <div 
-                className="course" 
-                style={calculateCourseStyle(course)} 
-                key={course.title}
-              >
-                {course.title}
-              </div>
-            ))}
-          </Paper>
-        </Grid>
-      ))}
-    </Grid>
-  );
-};
+          ) : <Navigate to="/auth" replace />
+        } />
 
-
-function App() {
-  return (
-    <div className="App">
-      <h1>My Calendar</h1>
-      <Scheduler />
-    </div>
+        <Route path="/" element={<Navigate to="/auth" replace />} />
+      </Routes>
+    </Router>
   );
 }
+
 
 export default App;
