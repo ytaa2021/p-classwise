@@ -4,7 +4,7 @@ import Search from '../Search/search';
 import { allCourses } from '../../courses/allCourses';
 
 
-const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const daysOfWeek = ['Time', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
 // const initialSchedules = {
 //   1: [],
@@ -41,21 +41,28 @@ const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules ,
   return (
     <div>
       <Grid container spacing={1}>
-        {daysOfWeek.map((day) => (
-          <Grid item xs={2} key={day}>
-            <Typography variant="h6" gutterBottom>
-              {day}
-            </Typography>
-            <Paper elevation={3} className="dayColumn">
-              {[...Array(24)].map((_, halfHour) => (
-                <div
-                  className={halfHour % 2 === 0 ? "hourBlock" : "halfHour"}
-                  key={halfHour}
-                  style={{ top: `${halfHour * 25}px` }}
-                >
-                  {halfHour % 2 === 0 && (halfHour / 2 + 8) + ":00"}
-                </div>
-              ))}
+      {daysOfWeek.map((day) => (
+        <Grid item xs={2} key={day}>
+          <Typography variant="h6" gutterBottom>
+            {day}
+          </Typography>
+          <Paper
+            elevation={3}
+            className={`dayColumn ${day === 'Time' ? 'timeColumn' : ''}`}
+            style={{
+              background: day === 'Time' ? 'transparent' : 'white',
+              width: day === 'Time' ? '50%' : '100%',
+            }}
+          >
+            {[...Array(24)].map((_, halfHour) => (
+              <div
+                className={halfHour % 2 === 0 ? 'hourBlock' : 'halfHour'}
+                key={halfHour}
+                style={{ top: `${halfHour * 25}px` }}
+              >
+                {day === 'Time' && halfHour % 2 === 0 && (halfHour / 2 + 8) + ':00'}
+              </div>
+            ))}
               {coursesByDay[day].map((course) => (
                 <div
                   className="course"
@@ -78,16 +85,6 @@ const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules ,
           </Grid>
         ))}
         <Grid item xs={2}>
-        {/* <Search
-            courses={currentCourses}
-            onSearch={handleSearch}
-            allCourses={allCourses}
-            expandedBlocks={expandedBlocks}
-            addCourse={addCourse}
-            removeCourse={removeCourse}
-            toggleClassBlock={toggleClassBlock}
-          /> */}
-          {/* <Search courses={currentCourses} onSearch={handleSearch} /> */}
         </Grid>
       </Grid>
     </div>

@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { Grid, Paper, Typography, Divider, Button } from '@mui/material';
 import './App.css';
+import Autocomplete from '@mui/material/Autocomplete';
+import TextField from '@mui/material/TextField';
+
 
 import axios from 'axios';
 import BottomMenu from './components/BottomMenu/bottomMenu';
@@ -152,9 +155,18 @@ function App() {
 
   return (
     <div className="App">
+      <Search
+            courses={currentCourses}
+            onSearch={handleSearch}
+            allCourses={allCourses}
+            expandedBlocks={expandedBlocks}
+            addCourse={addCourse}
+            removeCourse={removeCourse}
+            toggleClassBlock={toggleClassBlock}
+            handleClassClick={handleClassClick}
+          />
       <Grid container spacing={2}>
         <Grid item xs={12}>
-          <h1>My Calendar</h1>
           {/* buttons to switch between which of the 3 schedules looking at */}
           <div>
             <Button
@@ -176,7 +188,7 @@ function App() {
               Schedule 3
             </Button>
           </div>
-          <SideMenu/>
+          {/* <SideMenu/> */}
         </Grid>
       </Grid>
       {/* container spacing is to make the calendar and search next to each other */}
@@ -184,30 +196,16 @@ function App() {
         <Grid item xs={8}>
           {/* rendering of the actual schedule grid */}
           <div className="custom-container"></div>
-            <Calendar
-              currentCourses={currentCourses}
-              addCourse={addCourse}
-              removeCourse={removeCourse}
-              initialSchedules={initialSchedules}
-              handleClassClick={handleClassClick}
-            />
-            <div/>
-        </Grid>
-        <Grid item xs={4}>
-          {/* rendering of the search bar -- need to integrate with sidemenu */}
-          <div className="custom-container"></div>
-          <Search
-            courses={currentCourses}
-            onSearch={handleSearch}
-            allCourses={allCourses}
-            expandedBlocks={expandedBlocks}
+          <Calendar
+            currentCourses={currentCourses}
             addCourse={addCourse}
             removeCourse={removeCourse}
-            toggleClassBlock={toggleClassBlock}
+            initialSchedules={initialSchedules}
             handleClassClick={handleClassClick}
           />
           <div/>
         </Grid>
+        {/* ... (existing code) */}
       </Grid>
       <BottomMenu course={selectedClass} handleClassClick={handleClassClick} />
     </div>

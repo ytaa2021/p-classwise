@@ -10,3 +10,71 @@
   }
 
  
+.search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  width: 100%;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.search-button {
+  font-size: 14px;
+  padding: 6px 8px;
+  color: #3498db;
+  cursor: pointer;
+  border: 1px solid #3498db;
+  background-color: #fff;
+  border-radius: 4px;
+  margin-left: 5px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.search-button:hover {
+  background-color: #3498db;
+  color: #fff;
+}
+
+
+
+.course-list {
+  max-height: 600px;
+  overflow-y: auto;
+  width: 99%; 
+}
+
+
+.classBlock {
+  width: 100%; 
+  margin-bottom: 10px; 
+  padding: 15px; 
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+
+.small-button {
+  font-size: 12px !important;
+  padding: 2px 2px !important;
+}
+
+.course-list-container {
+  height: 160px; /*  height to show three classes */
+  overflow-y: auto;
+  width: 100%;
+}
