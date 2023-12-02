@@ -189,6 +189,7 @@ function App() {
             </Button>
           </div>
           {/* <SideMenu/> */}
+          <SideMenu/> 
         </Grid>
       </Grid>
       {/* container spacing is to make the calendar and search next to each other */}
