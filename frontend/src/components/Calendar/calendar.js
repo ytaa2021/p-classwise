@@ -6,11 +6,11 @@ import { allCourses } from '../../courses/allCourses';
 
 const daysOfWeek = ['Time', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-// const initialSchedules = {
-//   1: [],
-//   2: [],
-//   3: [],
-// };
+ const initialSchedules = {
+   1: [],
+   2: [],
+   3: [],
+ };
 
 const calculateCourseStyle = (course) => {
   const hourHeight = 50;
