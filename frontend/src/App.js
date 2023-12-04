@@ -23,24 +23,13 @@ import { getDatabase, ref, set, onValue } from "firebase/database";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
+import { auth, app } from './firebaseConfig';
 // TODO: Add SDKs for Firebase products that we want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyAKCYOJIZaO4P0gQ2xWrOUejknG4dnmbgQ",
-  authDomain: "p-classwise.firebaseapp.com",
-  projectId: "p-classwise",
-  storageBucket: "p-classwise.appspot.com",
-  messagingSenderId: "504076280646",
-  appId: "1:504076280646:web:af094da163143032123b47",
-  measurementId: "G-ZE814S75F1"
-};
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const analytics = getAnalytics(app);
 const API_BASE_URL = 'https://api.pomona.edu/api';
 const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206'; // Ideally should be in an .env file
 
@@ -110,6 +99,7 @@ function App() {
     3: [],
   };
 
+  const [isSignedIn, setIsSignedIn] = useState(false);
   const [allAvailableCourses, setAllAvailableCourses] = useState([]);
   const [activeCalendar, setActiveCalendar] = useState(1);
   const [calendars, setCalendars] = useState(initialSchedules);
@@ -119,12 +109,13 @@ function App() {
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [masterCourses, setMasterCourses] = useState([]);
-  const auth = getAuth();
+  //const auth = getAuth();
   const database = getDatabase(app);
   const userId = 'user_id'; // Replace with the actual user ID from Firebase Auth
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unregisterAuthObserver = onAuthStateChanged(auth, (user) => {
+      setIsSignedIn(!!user);
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
@@ -145,20 +136,9 @@ function App() {
         // ...
       }
     });
-
-    return () => unsubscribe();
-  }, [auth, database]);
-  // Fetch courses from Firebase when the component mounts
-  useEffect(() => {
-    const schedulesRef = ref(database, 'schedules/' + userId);
-    onValue(schedulesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        // Assuming the data structure in the database matches your state structure
-        setCalendars(data);
-      }
-    });
-  }, [database, userId]);
+  
+    return () => unregisterAuthObserver();
+  }, []);
 
   // Function to save the courses to Firebase
   const saveCoursesToFirebase = (newCalendars) => {
