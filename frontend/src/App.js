@@ -85,20 +85,6 @@ export const searchCourses = async (searchTerm) => {
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
-const courses = [ //curr added courses
-  {
-    day: 'Monday',
-    startTime: 9,
-    endTime: 10.5, 
-    title: "Machine Learning"
-  },
-  {
-    day: 'Tuesday',
-    startTime: 10,   
-    endTime: 11.5, 
-    title: "Physics 201"
-  },
-];
 
 // function App() {
 //   return (
@@ -119,7 +105,8 @@ function App() {
     2: [],
     3: [],
   };
-  
+
+  const [allAvailableCourses, setAllAvailableCourses] = useState([]);
   const [activeCalendar, setActiveCalendar] = useState(1);
   const [calendars, setCalendars] = useState(initialSchedules);
   const currentCourses = calendars[activeCalendar];
@@ -134,7 +121,13 @@ function App() {
       setMasterCourses(fetchedCourses); // Update your state with the fetched courses
     });
   }, []); // Dependency array is empty to run only on component mount
-  
+  useEffect(() => {
+  const termKey = "2023;FA";
+  fetchCourses(termKey).then(fetchedCourses => {
+    setAllAvailableCourses(fetchedCourses);
+  });
+}, []);
+
   useEffect(() => {
     setMasterCourses(getMasterCourseList());
   }, [calendars]);
@@ -211,7 +204,7 @@ function App() {
       <Search
             courses={currentCourses}
             onSearch={handleSearch}
-            allCourses={allCourses}
+            allCourses={allAvailableCourses}
             expandedBlocks={expandedBlocks}
             addCourse={addCourse}
             removeCourse={removeCourse}

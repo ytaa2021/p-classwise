@@ -13,6 +13,8 @@ const Search = ({
   toggleClassBlock,
   handleClassClick,
 }) => {
+  console.log("All Available Courses in Search:", allCourses); // Inside Search component
+
   const [searchTerm, setSearchTerm] = useState('');
   const [showCourseList, setShowCourseList] = useState(false);
   const searchRef = useRef(null);
