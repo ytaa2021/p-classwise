@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Paper, Typography, Button, Checkbox, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel } from '@mui/material';
+import { Grid, Paper, Typography, Button, Checkbox, Radio, RadioGroup, FormControl, FormControlLabel, FormLabel, TextField, Autocomplete } from '@mui/material';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -7,6 +7,20 @@ import Search from '../Search/search';
 import { allCourses } from '../../courses/allCourses';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import BottomMenu from '../BottomMenu';
+import { styled } from '@mui/system';
+
+const RoundedBottomTextField = styled(TextField)({
+  '& .MuiInput-root': {
+    borderBottomLeftRadius: '15px', // Adjust the value as needed
+    borderBottomRightRadius: '15px', // Adjust the value as needed
+  },
+});
+
+const CenteredButtonsContainer = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  gap: '10px', // Adjust the spacing between elements as needed
+});
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -24,7 +38,23 @@ const initialCourses = [
   //   title: "Physics 101",
   // },
 ];
-
+const colors = [
+  "#FF6666",
+  "#FFB366",
+  "#f5b453",
+  "#85cc3d",
+  "#99CCFF",
+  "#B3B3FF",
+  "#FF99FF",
+  "#FFCCE5",
+  "#FFEB99",
+  "#B3FFFF",
+  "#FFCC99",
+  "#C2FF99",
+  "#E599FF",
+  "#FFFFB3",
+  "#99E6E6"
+]
 const calculateCourseStyle = (course) => {
   const hourHeight = 50;
   const topOffset = (course.startTime - 8) * hourHeight;
@@ -32,7 +62,8 @@ const calculateCourseStyle = (course) => {
   return {
     top: `${topOffset}px`,
     height: `${courseHeight}px`,
-  };
+    backgroundColor: `${colors[course.color]}`
+    };
 };
 
 const Scheduler = ({onUpdateCourse}) => {
@@ -144,6 +175,16 @@ const Scheduler = ({onUpdateCourse}) => {
     });
   };
 
+  const handleKeyDown = (event, value) => {
+    if (event.key === 'Enter' && value) {
+      const selectedCourse = allCourses.find(course => course.title === value);
+
+      if (selectedCourse) {
+        console.log("DOPFJSOPFJ" + value);
+        addCourse(selectedCourse);
+      }
+    }
+  };
 
   const coursesByDay = {}; 
 
@@ -168,7 +209,16 @@ const Scheduler = ({onUpdateCourse}) => {
   };
   return (
     <div>
-    <div>
+      <div>
+      <CenteredButtonsContainer>
+      <Autocomplete
+        disablePortal
+        id="combo-box-demo"
+        options={allCourses}
+        getOptionLabel={ (course)=> course.title}
+        sx={{ width: 300 }}
+        renderInput={(params) => <TextField {...params} label="Search by Course Name" onKeyDown={(e)=> handleKeyDown(e,params.inputProps.value)} />}
+      />
       <Button
         variant={activeCalendar === 0 ? "contained" : "outlined"}
         onClick={() => switchCalendar(0)}
@@ -187,11 +237,27 @@ const Scheduler = ({onUpdateCourse}) => {
       >
         Schedule 3
       </Button>
+    </CenteredButtonsContainer>
     </div>
-    
     <Grid container spacing={2}>
+    <Grid item xs={1}>
+        <Typography variant="h6" gutterBottom>
+          {"Time"}
+        </Typography>
+        <Paper elevation={3} className="dayColumn">
+        {[...Array(24)].map((_, halfHour) => (
+            <div
+              className={halfHour % 2 === 0 ? "hourBlock" : "halfHour"}
+              key={halfHour}
+              style={{ top: `${halfHour * 25}px` }}
+            >
+              {halfHour % 2 === 0 && (halfHour / 2 + 8) + ":00"}
+            </div>
+          ))}
+        </Paper>
+      </Grid>
       {daysOfWeek.map((day) => (
-        <Grid item xs={2} key={day}>
+        <Grid item xs={1.75} key={day}>
           <Typography variant="h6" gutterBottom>
             {day}
           </Typography>
@@ -202,7 +268,7 @@ const Scheduler = ({onUpdateCourse}) => {
                 key={halfHour}
                 style={{ top: `${halfHour * 25}px` }}
               >
-                {halfHour % 2 === 0 && (halfHour / 2 + 8) + ":00"}
+                {/* {halfHour % 2 === 0 && (halfHour / 2 + 8) + ":00"} */}
               </div>
             ))}
             {coursesByDay[day].map((course) => (
