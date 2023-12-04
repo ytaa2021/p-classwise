@@ -19,6 +19,8 @@ import { allCourses } from './courses/allCourses';
 //Firebase stuff from their website
 
 // Import the functions you need from the SDKs you need
+import { getDatabase, ref, set, onValue } from "firebase/database";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 // TODO: Add SDKs for Firebase products that we want to use
@@ -117,6 +119,52 @@ function App() {
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [masterCourses, setMasterCourses] = useState([]);
+  const auth = getAuth();
+  const database = getDatabase(app);
+  const userId = 'user_id'; // Replace with the actual user ID from Firebase Auth
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in, see docs for a list of available properties
+        // https://firebase.google.com/docs/reference/js/firebase.User
+        const uid = user.uid;
+        
+        // Now you can use uid in your database path
+        const schedulesRef = ref(database, 'schedules/' + uid);
+        onValue(schedulesRef, (snapshot) => {
+          const data = snapshot.val();
+          if (data) {
+            setCalendars(data);
+          }
+        }, {
+          onlyOnce: true // If you only want to fetch the data once
+        });
+      } else {
+        // User is signed out
+        // ...
+      }
+    });
+
+    return () => unsubscribe();
+  }, [auth, database]);
+  // Fetch courses from Firebase when the component mounts
+  useEffect(() => {
+    const schedulesRef = ref(database, 'schedules/' + userId);
+    onValue(schedulesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        // Assuming the data structure in the database matches your state structure
+        setCalendars(data);
+      }
+    });
+  }, [database, userId]);
+
+  // Function to save the courses to Firebase
+  const saveCoursesToFirebase = (newCalendars) => {
+    set(ref(database, 'schedules/' + userId), newCalendars);
+  };
+
   useEffect(() => {
     const termKey = "2023;FA"; // Example term key, adjust as needed
     fetchCourses(termKey).then(fetchedCourses => {
@@ -148,32 +196,49 @@ function App() {
   };
 
   // below are the functions for adding to our 3 schedules, need to define here to access in both calendar and search 
-  const addCourse = (course) => {
-    setCalendars((prevCalendars) => {
-      // Check if the course is already in the active schedule
-      const isCourseAlreadyAdded = prevCalendars[activeCalendar].some((c) => c.title === course.title);
-  
-      if (isCourseAlreadyAdded) {
-        // If the course is already added, return the calendars as is
-        return prevCalendars;
-      } else {
-        // If not, add the new course to the active schedule
+  // Assuming you've already initialized Firebase and have the `database` object as shown above
+
+const addCourse = (course) => {
+  setCalendars((prevCalendars) => {
+    // Check if the course is already in the active schedule
+    const isCourseAlreadyAdded = prevCalendars[activeCalendar].some((c) => c.title === course.title);
+
+    if (isCourseAlreadyAdded) {
+      // If the course is already added, do not modify the calendars
+      return prevCalendars;
+    } else {
+      // If not, add the new course to the active schedule
       const courseWithCalendar = { ...course, calendarId: activeCalendar };
-      return {
+      const updatedCalendars = {
         ...prevCalendars,
         [activeCalendar]: [...prevCalendars[activeCalendar], courseWithCalendar],
       };
-      }
-    });
-  };
-  
 
-  const removeCourse = (course) => {
-    setCalendars((prevCalendars) => ({
+      // Save the updated calendars to Firebase
+      set(ref(database, 'schedules/' + userId), updatedCalendars);
+
+      return updatedCalendars;
+    }
+  });
+};
+
+const removeCourse = (courseToRemove) => {
+  setCalendars((prevCalendars) => {
+    // Filter out the course to be removed from the active schedule
+    const updatedCoursesForActiveCalendar = prevCalendars[activeCalendar].filter((course) => course !== courseToRemove);
+
+    const updatedCalendars = {
       ...prevCalendars,
-      [activeCalendar]: prevCalendars[activeCalendar].filter((c) => c !== course),
-    }));
-  };
+      [activeCalendar]: updatedCoursesForActiveCalendar,
+    };
+
+    // Save the updated calendars to Firebase
+    set(ref(database, 'schedules/' + userId), updatedCalendars);
+
+    return updatedCalendars;
+  });
+};
+
 
   const toggleClassBlock = (title) => {
     setExpandedBlocks({
@@ -207,7 +272,7 @@ function App() {
         <Search
               courses={currentCourses}
               onSearch={handleSearch}
-              allCourses={allAvailableCourses}
+              allCourses={allCourses}
               expandedBlocks={expandedBlocks}
               addCourse={addCourse}
               removeCourse={removeCourse}
