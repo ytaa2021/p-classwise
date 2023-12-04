@@ -41,17 +41,26 @@ const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules ,
   return (
     <div>
       <Grid container spacing={1}>
-      {daysOfWeek.map((day) => (
-        <Grid item xs={2} key={day}>
-          <Typography variant="h6" gutterBottom>
-            {day}
-          </Typography>
+        {daysOfWeek.map((day) => (
+          <Grid item xs={2} key={day}>
+            {day === 'Time' ? (
+              <div style={{ paddingRight: '18%' }}> {/* Adjust padding as needed */}
+                <Typography variant="h6" gutterBottom>
+                  {day}
+                </Typography>
+              </div>
+            ) : (
+              <Typography variant="h6" gutterBottom>
+                {day}
+              </Typography>
+            )}
           <Paper
             elevation={3}
             className={`dayColumn ${day === 'Time' ? 'timeColumn' : ''}`}
             style={{
-              background: day === 'Time' ? '#0096FFD2' : 'white',
-              width: day === 'Time' ? '100%' : '100%',
+              background: day === 'Time' ? 'white' : 'white',
+              width: day === 'Time' ? '80%' : '100%',
+              
             }}
           >
             {[...Array(24)].map((_, halfHour) => (
