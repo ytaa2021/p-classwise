@@ -47,6 +47,7 @@ function SideMenu() {
         </Tabs>
       </Popover>
     </div>
+    
   );
 }
 

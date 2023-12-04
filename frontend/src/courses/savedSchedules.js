@@ -1,3 +1,5 @@
+// src/courses/calendarData.js
+
 const savedSchedules = {
     1: [
     ],
@@ -10,3 +12,4 @@ const savedSchedules = {
   };
   
   export default savedSchedules;
+  

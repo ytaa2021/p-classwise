@@ -1,0 +1,5 @@
+.scrollable-side-menu {
+    max-height: 100vh; /* Adjust as needed to fit your layout */
+    overflow-y: auto; /* Enable vertical scrolling */
+  }
+  
