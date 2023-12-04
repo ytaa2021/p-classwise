@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Grid, Paper, Typography, Divider, Button } from '@mui/material';
 import './App.css';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -6,6 +6,7 @@ import TextField from '@mui/material/TextField';
 
 
 import axios from 'axios';
+import SSM from './components/SideMenu/scrollableSM';
 import BottomMenu from './components/BottomMenu/bottomMenu';
 import SideMenu from './components/SideMenu/sideMenu'
 import Calendar from './components/Calendar/calendar'
@@ -89,6 +90,8 @@ const courses = [ //curr added courses
 //     </div>
 //   );
 // }
+
+
 function App() {
   const initialSchedules = {
     1: [],
@@ -103,6 +106,16 @@ function App() {
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
+  const [masterCourses, setMasterCourses] = useState([]);
+
+  useEffect(() => {
+    setMasterCourses(getMasterCourseList());
+  }, [calendars]);
+
+  const getMasterCourseList = () => {
+    const combinedCourses = Object.values(calendars).flat();
+    return combinedCourses;
+  };  
 
   // function for the search filtering, not fully implemented
   const handleSearch = (searchTerm) => {
@@ -114,11 +127,24 @@ function App() {
 
   // below are the functions for adding to our 3 schedules, need to define here to access in both calendar and search 
   const addCourse = (course) => {
-    setCalendars((prevCalendars) => ({
-      ...prevCalendars,
-      [activeCalendar]: [...prevCalendars[activeCalendar], course],
-    }));
+    setCalendars((prevCalendars) => {
+      // Check if the course is already in the active schedule
+      const isCourseAlreadyAdded = prevCalendars[activeCalendar].some((c) => c.title === course.title);
+  
+      if (isCourseAlreadyAdded) {
+        // If the course is already added, return the calendars as is
+        return prevCalendars;
+      } else {
+        // If not, add the new course to the active schedule
+      const courseWithCalendar = { ...course, calendarId: activeCalendar };
+      return {
+        ...prevCalendars,
+        [activeCalendar]: [...prevCalendars[activeCalendar], courseWithCalendar],
+      };
+      }
+    });
   };
+  
 
   const removeCourse = (course) => {
     setCalendars((prevCalendars) => ({
@@ -189,7 +215,6 @@ function App() {
             </Button>
           </div>
           {/* <SideMenu/> */}
-          <SideMenu/> 
         </Grid>
       </Grid>
       {/* container spacing is to make the calendar and search next to each other */}
@@ -206,7 +231,13 @@ function App() {
           />
           <div/>
         </Grid>
-        {/* ... (existing code) */}
+        <Grid item xs={4}> {/* Assigning 4 columns to Side Menu */}
+        {/* SideMenu component */}
+        <SSM 
+        savedCourses={masterCourses}
+        handleClassClick={handleClassClick}
+        />
+        </Grid>
       </Grid>
       <BottomMenu course={selectedClass} handleClassClick={handleClassClick} />
     </div>
