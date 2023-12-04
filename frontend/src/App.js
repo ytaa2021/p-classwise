@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Grid, Paper, Typography, Divider, Button } from '@mui/material';
 import './App.css';
+import { ThemeProvider } from '@mui/material/styles';
+import theme from './theme'; // make sure this path is correct
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 
@@ -200,67 +202,69 @@ function App() {
   };
 
   return (
-    <div className="App">
-      <Search
-            courses={currentCourses}
-            onSearch={handleSearch}
-            allCourses={allAvailableCourses}
-            expandedBlocks={expandedBlocks}
-            addCourse={addCourse}
-            removeCourse={removeCourse}
-            toggleClassBlock={toggleClassBlock}
-            handleClassClick={handleClassClick}
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <Search
+              courses={currentCourses}
+              onSearch={handleSearch}
+              allCourses={allAvailableCourses}
+              expandedBlocks={expandedBlocks}
+              addCourse={addCourse}
+              removeCourse={removeCourse}
+              toggleClassBlock={toggleClassBlock}
+              handleClassClick={handleClassClick}
+            />
+        <Grid container spacing={2}>
+          <Grid item xs={12}>
+            {/* buttons to switch between which of the 3 schedules looking at */}
+            <div>
+              <Button
+                variant={activeCalendar === 1 ? "contained" : "outlined"}
+                onClick={() => switchCalendar(1)}
+              >
+                Schedule 1
+              </Button>
+              <Button
+                variant={activeCalendar === 2 ? "contained" : "outlined"}
+                onClick={() => switchCalendar(2)}
+              >
+                Schedule 2
+              </Button>
+              <Button
+                variant={activeCalendar === 3 ? "contained" : "outlined"}
+                onClick={() => switchCalendar(3)}
+              >
+                Schedule 3
+              </Button>
+            </div>
+            {/* <SideMenu/> */}
+          </Grid>
+        </Grid>
+        {/* container spacing is to make the calendar and search next to each other */}
+        <Grid container spacing={0}>
+          <Grid item xs={8}>
+            {/* rendering of the actual schedule grid */}
+            <div className="custom-container"></div>
+            <Calendar
+              currentCourses={currentCourses}
+              addCourse={addCourse}
+              removeCourse={removeCourse}
+              initialSchedules={initialSchedules}
+              handleClassClick={handleClassClick}
+            />
+            <div/>
+          </Grid>
+          <Grid item xs={4}> {/* Assigning 4 columns to Side Menu */}
+          {/* SideMenu component */}
+          <SSM 
+          savedCourses={masterCourses}
+          handleClassClick={handleClassClick}
           />
-      <Grid container spacing={2}>
-        <Grid item xs={12}>
-          {/* buttons to switch between which of the 3 schedules looking at */}
-          <div>
-            <Button
-              variant={activeCalendar === 1 ? "contained" : "outlined"}
-              onClick={() => switchCalendar(1)}
-            >
-              Schedule 1
-            </Button>
-            <Button
-              variant={activeCalendar === 2 ? "contained" : "outlined"}
-              onClick={() => switchCalendar(2)}
-            >
-              Schedule 2
-            </Button>
-            <Button
-              variant={activeCalendar === 3 ? "contained" : "outlined"}
-              onClick={() => switchCalendar(3)}
-            >
-              Schedule 3
-            </Button>
-          </div>
-          {/* <SideMenu/> */}
+          </Grid>
         </Grid>
-      </Grid>
-      {/* container spacing is to make the calendar and search next to each other */}
-      <Grid container spacing={0}>
-        <Grid item xs={8}>
-          {/* rendering of the actual schedule grid */}
-          <div className="custom-container"></div>
-          <Calendar
-            currentCourses={currentCourses}
-            addCourse={addCourse}
-            removeCourse={removeCourse}
-            initialSchedules={initialSchedules}
-            handleClassClick={handleClassClick}
-          />
-          <div/>
-        </Grid>
-        <Grid item xs={4}> {/* Assigning 4 columns to Side Menu */}
-        {/* SideMenu component */}
-        <SSM 
-        savedCourses={masterCourses}
-        handleClassClick={handleClassClick}
-        />
-        </Grid>
-      </Grid>
-      <BottomMenu course={selectedClass} handleClassClick={handleClassClick} />
-    </div>
+        <BottomMenu course={selectedClass} handleClassClick={handleClassClick} />
+      </div>
+    </ThemeProvider>
   );
 }
 

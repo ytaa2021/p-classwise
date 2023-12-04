@@ -3,5 +3,6 @@
     overflow-y: auto; /* Enable vertical scrolling */
     overflow-x: clip;
     padding-left: 14px;
+    padding-top: 40px;
   }
   
