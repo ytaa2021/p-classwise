@@ -37,8 +37,8 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
-const BASE_URL = 'TODO: BACKEND URL'; 
+const API_BASE_URL = 'https://api.pomona.edu/api';
+const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206'; // Ideally should be in an .env file
 
 const courseData = {
   name: "ML",
@@ -48,10 +48,37 @@ const courseData = {
   requirements: ["Fulfills CS 1/3 Electives"]
 };
 
+const fetchCourses = async (termKey) => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/Courses/${termKey}?api_key=${API_KEY}`);
+    const apiCourses = response.data;
+
+    return apiCourses.map(apiCourse => {
+      const schedule = apiCourse.Schedules[0]; // Assuming you're interested in the first schedule
+      // Parse MeetTime to extract startTime and endTime
+      const [startTime, endTime] = schedule.MeetTime.split(' - '); // Adjust based on the actual format
+
+      return {
+        day: schedule.Weekdays,
+        startTime: startTime,
+        endTime: endTime,
+        title: apiCourse.Name,
+        description: apiCourse.Description,
+        seatsFilled: apiCourse.SeatsFilled,
+        // Add other fields as necessary
+      };
+    });
+  } catch (error) {
+    console.error("Error fetching courses", error);
+    return [];
+  }
+};
+
+
 
 export const searchCourses = async (searchTerm) => {
   try {
-    const response = await axios.get(`${BASE_URL}/search`, { 
+    const response = await axios.get(`${API_BASE_URL}/search`, { 
       params: { term: searchTerm }
     });
     return response.data;
@@ -107,7 +134,13 @@ function App() {
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [masterCourses, setMasterCourses] = useState([]);
-
+  useEffect(() => {
+    const termKey = "2023;FA"; // Example term key, adjust as needed
+    fetchCourses(termKey).then(fetchedCourses => {
+      setMasterCourses(fetchedCourses); // Update your state with the fetched courses
+    });
+  }, []); // Dependency array is empty to run only on component mount
+  
   useEffect(() => {
     setMasterCourses(getMasterCourseList());
   }, [calendars]);
