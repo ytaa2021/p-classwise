@@ -50,15 +50,15 @@ const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules ,
             elevation={3}
             className={`dayColumn ${day === 'Time' ? 'timeColumn' : ''}`}
             style={{
-              background: day === 'Time' ? 'transparent' : 'white',
-              width: day === 'Time' ? '50%' : '100%',
+              background: day === 'Time' ? '#0096FFD2' : 'white',
+              width: day === 'Time' ? '100%' : '100%',
             }}
           >
             {[...Array(24)].map((_, halfHour) => (
               <div
                 className={halfHour % 2 === 0 ? 'hourBlock' : 'halfHour'}
                 key={halfHour}
-                style={{ top: `${halfHour * 25}px` }}
+                style={{ top: `${halfHour * 25}px`}}
               >
                 {day === 'Time' && halfHour % 2 === 0 && (halfHour / 2 + 8) + ':00'}
               </div>
