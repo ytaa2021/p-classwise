@@ -40,13 +40,7 @@ const analytics = getAnalytics(app);
 const API_BASE_URL = 'https://api.pomona.edu/api';
 const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206'; // Ideally should be in an .env file
 
-const courseData = {
-  name: "ML",
-  professor: "Dr. Dave",
-  description: "Learn to classify wine types and whether people on the titanic died",
-  rating: "4.5/5",
-  requirements: ["Fulfills CS 1/3 Electives"]
-};
+
 
 const fetchCourses = async (termKey) => {
   try {
