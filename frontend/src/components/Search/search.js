@@ -18,6 +18,14 @@ const Search = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [showCourseList, setShowCourseList] = useState(false);
   const searchRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 20; // Adjust as needed
+  const indexOfLastCourse = currentPage * coursesPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  const currentCourses = allCourses.slice(indexOfFirstCourse, indexOfLastCourse);
+
+const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
 
   const handleSearch = () => {
     const filteredCourses = courses.filter((course) =>
@@ -76,8 +84,8 @@ const Search = ({
       {showCourseList && (
         <div className="course-list-container">
         <div className="course-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
-          {allCourses.map((course) => (
-            <Paper elevation={3} className="classBlock" key={course.title} onClick={() => handleClassClick(course)}>
+          {currentCourses.map((course) => (
+            <Paper elevation={3} className="classBlock" key={course.courseCode} onClick={() => handleClassClick(course)}>
               <div style={{ display: 'flex', alignItems: 'center' }}>
                 <div>
                   <Button
@@ -105,7 +113,7 @@ const Search = ({
                 </div>
                 <div style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   <Typography variant="subtitle1" gutterBottom>
-                    {course.title}
+                    {course.courseCode}
                   </Typography>
                 </div>
                 <div style={{ flex: 1, textAlign: 'right' }}>
@@ -123,12 +131,19 @@ const Search = ({
                 <div>
                   <Typography variant="body2">
                     Time: {`${course.startTime} - ${course.endTime}`}<br />
-                    Professor: {course.professor}<br />
+                    Professor: {course.instructors}<br />
                     Description: {course.description}
                   </Typography>
                 </div>
               )}
             </Paper>
+          ))}
+        </div>
+        <div className="pagination">
+          {[...Array(Math.ceil(allCourses.length / coursesPerPage)).keys()].map(number => (
+            <button key={number} onClick={() => paginate(number + 1)}>
+              {number + 1}
+            </button>
           ))}
         </div>
       </div>

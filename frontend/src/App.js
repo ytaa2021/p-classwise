@@ -43,18 +43,42 @@ const fetchCourses = async (termKey) => {
     const apiCourses = response.data;
 
     return apiCourses.map(apiCourse => {
-      const schedule = apiCourse.Schedules[0]; // Assuming you're interested in the first schedule
-      // Parse MeetTime to extract startTime and endTime
-      const [startTime, endTime] = schedule.MeetTime.split(' - '); // Adjust based on the actual format
+      // Extract only if Schedules and Instructors are not null
+      let schedules = apiCourse.Schedules ? apiCourse.Schedules.map(s => ({
+        buildingCode: s.BuildingCode,
+        building: s.Building,
+        campus: s.Campus,
+        meetTime: s.MeetTime,
+        room: s.Room,
+        weekdays: s.Weekdays
+      })) : [];
+
+      let instructors = apiCourse.Instructors ? apiCourse.Instructors.map(instr => ({
+        emailAddress: instr.EmailAddress,
+        name: instr.Name,
+        cxId: instr.CxID
+      })) : [];
 
       return {
-        day: schedule.Weekdays,
-        startTime: startTime,
-        endTime: endTime,
-        title: apiCourse.Name,
+        catalog: apiCourse.Catalog,
+        courseCode: apiCourse.CourseCode,
+        courseStatus: apiCourse.CourseStatus,
+        credits: apiCourse.Credits,
+        department: apiCourse.Department,
         description: apiCourse.Description,
+        gradingStyle: apiCourse.GradingStyle,
+        instructors: instructors,
+        name: apiCourse.Name,
+        note: apiCourse.Note,
+        permCount: apiCourse.PermCount,
+        primaryAssociation: apiCourse.PrimaryAssociation,
+        requisites: apiCourse.Requisites,
+        schedules: schedules,
         seatsFilled: apiCourse.SeatsFilled,
-        // Add other fields as necessary
+        seatsTotal: apiCourse.SeatsTotal,
+        session: apiCourse.Session,
+        subSession: apiCourse.SubSession,
+        year: apiCourse.Year
       };
     });
   } catch (error) {
@@ -62,6 +86,7 @@ const fetchCourses = async (termKey) => {
     return [];
   }
 };
+
 
 
 
@@ -147,13 +172,7 @@ function App() {
   
 
   useEffect(() => {
-    const termKey = "2023;FA"; // Example term key, adjust as needed
-    fetchCourses(termKey).then(fetchedCourses => {
-      setMasterCourses(fetchedCourses); // Update your state with the fetched courses
-    });
-  }, []); // Dependency array is empty to run only on component mount
-  useEffect(() => {
-  const termKey = "2023;FA";
+  const termKey = "2024;SP";
   fetchCourses(termKey).then(fetchedCourses => {
     setAllAvailableCourses(fetchedCourses);
   });
@@ -170,8 +189,8 @@ function App() {
 
   // function for the search filtering, not fully implemented
   const handleSearch = (searchTerm) => {
-    const filteredCourses = currentCourses.filter((course) =>
-      course.title.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredCourses = allAvailableCourses.filter((course) =>
+      course.courseCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCourses(filteredCourses);
   };
@@ -257,7 +276,7 @@ const removeCourse = (courseToRemove) => {
               <Search
                     courses={currentCourses}
                     onSearch={handleSearch}
-                    allCourses={allCourses}
+                    allCourses={allAvailableCourses}
                     expandedBlocks={expandedBlocks}
                     addCourse={addCourse}
                     removeCourse={removeCourse}
