@@ -105,7 +105,7 @@ function App() {
   const [allAvailableCourses, setAllAvailableCourses] = useState([]);
   const [activeCalendar, setActiveCalendar] = useState(1);
   const [calendars, setCalendars] = useState(initialSchedules);
-  const currentCourses = calendars[activeCalendar];
+  const currentCourses = calendars[activeCalendar] || [];
 
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [addedCourses, setAddedCourses] = useState([]);
@@ -194,21 +194,20 @@ function App() {
 const addCourse = (course) => {
   setCalendars((prevCalendars) => {
     // Check if the course is already in the active schedule
-    const isCourseAlreadyAdded = prevCalendars[activeCalendar].some((c) => c.title === course.title);
+    const isCourseAlreadyAdded = (prevCalendars[activeCalendar] || []).some((c) => c.title === course.title);
 
     if (isCourseAlreadyAdded) {
       // If the course is already added, do not modify the calendars
       return prevCalendars;
     } else {
       // If not, add the new course to the active schedule
-      const courseWithCalendar = { ...course, calendarId: activeCalendar };
       const updatedCalendars = {
         ...prevCalendars,
-        [activeCalendar]: [...prevCalendars[activeCalendar], courseWithCalendar],
+        [activeCalendar]: [...(prevCalendars[activeCalendar] || []), course],
       };
 
       // Save the updated calendars to Firebase
-      set(ref(database, 'schedules/' + uid), updatedCalendars);
+      saveCoursesToFirebase(updatedCalendars);
 
       return updatedCalendars;
     }
