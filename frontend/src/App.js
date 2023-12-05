@@ -25,6 +25,7 @@ import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { auth, app } from './firebaseConfig';
+import Auth from './Auth'
 // TODO: Add SDKs for Firebase products that we want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -112,16 +113,15 @@ function App() {
   const [masterCourses, setMasterCourses] = useState([]);
   //const auth = getAuth();
   const database = getDatabase(app);
-  const userId = 'user_id'; // Replace with the actual user ID from Firebase Auth
-
+  let uid = "uid"
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(auth, (user) => {
       setIsSignedIn(!!user);
       if (user) {
         // User is signed in, see docs for a list of available properties
         // https://firebase.google.com/docs/reference/js/firebase.User
-        const uid = user.uid;
-        
+        uid = user.uid;
+        console.log(uid);
         // Now you can use uid in your database path
         const schedulesRef = ref(database, 'schedules/' + uid);
         onValue(schedulesRef, (snapshot) => {
@@ -143,8 +143,20 @@ function App() {
 
   // Function to save the courses to Firebase
   const saveCoursesToFirebase = (newCalendars) => {
-    set(ref(database, 'schedules/' + userId), newCalendars);
+    set(ref(database, 'schedules/' + uid), newCalendars);
   };
+  useEffect(() => {
+    const schedulesRef = ref(database, 'schedules/' + uid);
+    onValue(schedulesRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        setCalendars(data);
+      }
+    }, {
+      onlyOnce: true // This ensures it runs only once when the component mounts
+    });
+  }, []); // Empty dependency array means it runs on mount
+  
 
   useEffect(() => {
     const termKey = "2023;FA"; // Example term key, adjust as needed
@@ -196,7 +208,7 @@ const addCourse = (course) => {
       };
 
       // Save the updated calendars to Firebase
-      set(ref(database, 'schedules/' + userId), updatedCalendars);
+      set(ref(database, 'schedules/' + uid), updatedCalendars);
 
       return updatedCalendars;
     }
@@ -214,7 +226,7 @@ const removeCourse = (courseToRemove) => {
     };
 
     // Save the updated calendars to Firebase
-    set(ref(database, 'schedules/' + userId), updatedCalendars);
+    set(ref(database, 'schedules/' + uid), updatedCalendars);
 
     return updatedCalendars;
   });
