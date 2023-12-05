@@ -111,34 +111,20 @@ function App() {
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [masterCourses, setMasterCourses] = useState([]);
+  const [uid, setUid] = useState(null);
   //const auth = getAuth();
   const database = getDatabase(app);
-  let uid = "uid"
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(auth, (user) => {
       setIsSignedIn(!!user);
       if (user) {
-        // User is signed in, see docs for a list of available properties
-        // https://firebase.google.com/docs/reference/js/firebase.User
-        uid = user.uid;
-        console.log(uid);
-        // Now you can use uid in your database path
-        const schedulesRef = ref(database, 'schedules/' + uid);
-        onValue(schedulesRef, (snapshot) => {
-          const data = snapshot.val();
-          if (data) {
-            setCalendars(data);
-          }
-        }, {
-          onlyOnce: true // If you only want to fetch the data once
-        });
+        setUid(user.uid); // Set uid when user is logged in
       } else {
-        // User is signed out
-        // ...
+        setUid(null); // Clear uid when user logs out
       }
     });
   
-    return () => unregisterAuthObserver();
+    return () => unregisterAuthObserver(); // Cleanup
   }, []);
 
   // Function to save the courses to Firebase
@@ -146,16 +132,18 @@ function App() {
     set(ref(database, 'schedules/' + uid), newCalendars);
   };
   useEffect(() => {
-    const schedulesRef = ref(database, 'schedules/' + uid);
-    onValue(schedulesRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        setCalendars(data);
-      }
-    }, {
-      onlyOnce: true // This ensures it runs only once when the component mounts
-    });
-  }, []); // Empty dependency array means it runs on mount
+    if (uid) { // Ensure uid is not null
+      const schedulesRef = ref(database, 'schedules/' + uid);
+      onValue(schedulesRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          setCalendars(data); // Set the schedules
+        }
+      }, {
+        onlyOnce: true
+      });
+    }
+  }, [uid]); // Dependency array includes uid
   
 
   useEffect(() => {
