@@ -35,93 +35,10 @@ import Auth from './Auth'
 const API_BASE_URL = 'https://api.pomona.edu/api';
 const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206'; // Ideally should be in an .env file
 
-const fetchCourses = async (termKey, courseAreaCode) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/Courses/${termKey}/${courseAreaCode}/?api_key=${API_KEY}`);
-    const apiCourses = response.data;
-    console.log(apiCourses)
-    return apiCourses.map(apiCourse => {
-      // Extract only if Schedules and Instructors are not null
-      let schedules = apiCourse.Schedules ? apiCourse.Schedules.map(s => ({
-        buildingCode: s.BuildingCode,
-        building: s.Building,
-        campus: s.Campus,
-        meetTime: s.MeetTime,
-        room: s.Room,
-        weekdays: s.Weekdays
-      })) : [];
 
-      let instructors = apiCourse.Instructors ? apiCourse.Instructors.map(instr => ({
-        emailAddress: instr.EmailAddress,
-        name: instr.Name,
-        cxId: instr.CxID
-      })) : [];
-
-      return {
-        catalog: apiCourse.Catalog,
-        courseCode: apiCourse.CourseCode,
-        courseStatus: apiCourse.CourseStatus,
-        credits: apiCourse.Credits,
-        department: apiCourse.Department,
-        description: apiCourse.Description,
-        gradingStyle: apiCourse.GradingStyle,
-        instructors: instructors,
-        name: apiCourse.Name,
-        note: apiCourse.Note,
-        permCount: apiCourse.PermCount,
-        primaryAssociation: apiCourse.PrimaryAssociation,
-        requisites: apiCourse.Requisites,
-        schedules: schedules,
-        seatsFilled: apiCourse.SeatsFilled,
-        seatsTotal: apiCourse.SeatsTotal,
-        session: apiCourse.Session,
-        subSession: apiCourse.SubSession,
-        year: apiCourse.Year
-      };
-    });
-  } catch (error) {
-    console.error(`Error fetching courses for area ${courseAreaCode}`, error);
-    return [];
-  }
-};
-
-async function fetchAllCourses(termKey) {
-  try {
-    const courseAreasResponse = await axios.get('https://api.pomona.edu/api/CourseAreas/?api_key=b2dde85c249d4d07bdfe152ae51a3206');
-    const courseAreas = courseAreasResponse.data;
-
-    let allCourses = [];
-
-    for (const area of courseAreas) {
-      const areaCourses = await fetchCourses(termKey, area.Code);
-      allCourses = allCourses.concat(areaCourses);
-    }
-
-    return allCourses;
-  } catch (error) {
-    console.error("Error fetching all courses", error);
-    return [];
-  }
-}
-
-
-
-
-export const searchCourses = async (searchTerm) => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/search`, { 
-      params: { term: searchTerm }
-    });
-    return response.data;
-  } catch (error) {
-    console.error("Error getting courses", error);
-    return [];
-  }
-}
 
 
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-
 
 // function App() {
 //   return (
@@ -148,7 +65,7 @@ function App() {
   const [activeCalendar, setActiveCalendar] = useState(1);
   const [calendars, setCalendars] = useState(initialSchedules);
   const currentCourses = calendars[activeCalendar] || [];
-
+  const [courseAreas, setCourseAreas] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [addedCourses, setAddedCourses] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
@@ -156,6 +73,7 @@ function App() {
   const [uid, setUid] = useState(null);
   //const auth = getAuth();
   const database = getDatabase(app);
+
   useEffect(() => {
     const unregisterAuthObserver = onAuthStateChanged(auth, (user) => {
       setIsSignedIn(!!user);
@@ -189,13 +107,6 @@ function App() {
   
 
   useEffect(() => {
-  const termKey = "2024;SP";
-  fetchAllCourses(termKey).then(fetchedCourses => {
-    setAllAvailableCourses(fetchedCourses);
-  });
-}, []);
-
-  useEffect(() => {
     setMasterCourses(getMasterCourseList());
   }, [calendars]);
 
@@ -207,7 +118,7 @@ function App() {
   // function for the search filtering, not fully implemented
   const handleSearch = (searchTerm) => {
     const filteredCourses = allAvailableCourses.filter((course) =>
-      course.courseCode.toLowerCase().includes(searchTerm.toLowerCase())
+      course.CourseCode.toLowerCase().includes(searchTerm.toLowerCase())
     );
     setFilteredCourses(filteredCourses);
   };
@@ -218,7 +129,7 @@ function App() {
 const addCourse = (course) => {
   setCalendars((prevCalendars) => {
     // Check if the course is already in the active schedule
-    const isCourseAlreadyAdded = (prevCalendars[activeCalendar] || []).some((c) => c.title === course.title);
+    const isCourseAlreadyAdded = (prevCalendars[activeCalendar] || []).some((c) => c.Name === course.Name);
 
     if (isCourseAlreadyAdded) {
       // If the course is already added, do not modify the calendars
@@ -256,10 +167,10 @@ const removeCourse = (courseToRemove) => {
 };
 
 
-  const toggleClassBlock = (title) => {
+  const toggleClassBlock = (Name) => {
     setExpandedBlocks({
       ...expandedBlocks,
-      [title]: !expandedBlocks[title],
+      [Name]: !expandedBlocks[Name],
     });
   };
 
@@ -281,6 +192,12 @@ const removeCourse = (courseToRemove) => {
   const handleClassClick = (course) => {
     setSelectedClass(course);
   };
+  useEffect(() => {
+    // Fetch and set course areas
+    axios.get('https://api.pomona.edu/api/CourseAreas/?api_key=b2dde85c249d4d07bdfe152ae51a3206')
+      .then(response => setCourseAreas(response.data))
+      .catch(error => console.error("Error fetching course areas", error));
+  }, []);
 
   return (
     <Router>
@@ -293,12 +210,12 @@ const removeCourse = (courseToRemove) => {
               <Search
                     courses={currentCourses}
                     onSearch={handleSearch}
-                    allCourses={allAvailableCourses}
                     expandedBlocks={expandedBlocks}
                     addCourse={addCourse}
                     removeCourse={removeCourse}
                     toggleClassBlock={toggleClassBlock}
                     handleClassClick={handleClassClick}
+                    courseAreas={courseAreas}
                   />
               <Grid container spacing={2}>
                 <Grid item xs={12}>

@@ -13,6 +13,8 @@ const daysOfWeek = ['Time', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
  };
 
 const calculateCourseStyle = (course) => {
+  console.log("bebe")
+  console.log(course.startTime)
   const hourHeight = 50;
   const topOffset = (course.startTime - 8) * hourHeight;
   const courseHeight = (course.endTime - course.startTime) * hourHeight;
