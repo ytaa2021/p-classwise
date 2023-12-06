@@ -35,13 +35,11 @@ import Auth from './Auth'
 const API_BASE_URL = 'https://api.pomona.edu/api';
 const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206'; // Ideally should be in an .env file
 
-
-
-const fetchCourses = async (termKey) => {
+const fetchCourses = async (termKey, courseAreaCode) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/Courses/${termKey}?api_key=${API_KEY}`);
+    const response = await axios.get(`${API_BASE_URL}/Courses/${termKey}/${courseAreaCode}/?api_key=${API_KEY}`);
     const apiCourses = response.data;
-
+    console.log(apiCourses)
     return apiCourses.map(apiCourse => {
       // Extract only if Schedules and Instructors are not null
       let schedules = apiCourse.Schedules ? apiCourse.Schedules.map(s => ({
@@ -82,10 +80,29 @@ const fetchCourses = async (termKey) => {
       };
     });
   } catch (error) {
-    console.error("Error fetching courses", error);
+    console.error(`Error fetching courses for area ${courseAreaCode}`, error);
     return [];
   }
 };
+
+async function fetchAllCourses(termKey) {
+  try {
+    const courseAreasResponse = await axios.get('https://api.pomona.edu/api/CourseAreas/?api_key=b2dde85c249d4d07bdfe152ae51a3206');
+    const courseAreas = courseAreasResponse.data;
+
+    let allCourses = [];
+
+    for (const area of courseAreas) {
+      const areaCourses = await fetchCourses(termKey, area.Code);
+      allCourses = allCourses.concat(areaCourses);
+    }
+
+    return allCourses;
+  } catch (error) {
+    console.error("Error fetching all courses", error);
+    return [];
+  }
+}
 
 
 
@@ -173,7 +190,7 @@ function App() {
 
   useEffect(() => {
   const termKey = "2024;SP";
-  fetchCourses(termKey).then(fetchedCourses => {
+  fetchAllCourses(termKey).then(fetchedCourses => {
     setAllAvailableCourses(fetchedCourses);
   });
 }, []);
