@@ -18,8 +18,8 @@ function ScrollableSideMenu({ currentCourses, handleSearch, addCourse, removeCou
         </AccordionSummary>
         <AccordionDetails>
           {savedCourses.map((course, index) => (
-            <Paper key={course.title + course.calendarId} className="classBlock" onClick={() => handleClassClick(course)}>
-                <Typography variant="subtitle1">{course.title}</Typography>
+            <Paper key={course.name + course.calendarId} className="classBlock" onClick={() => handleClassClick(course)}>
+                <Typography variant="subtitle1">{course.name}</Typography>
                 <Typography variant="body2">Calendar: {course.calendarId}</Typography>
               {/* Course details and actions */}
             </Paper>

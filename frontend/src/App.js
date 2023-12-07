@@ -51,6 +51,39 @@ const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 //     </div>
 //   );
 // }
+function convertTimeTo24HourFormat(time, isEndTime = false) {
+  if (!time) {
+      console.error('Time value is null or undefined');
+      return null; // Handle this appropriately where the function is called
+  }
+
+  // Trim any leading or trailing whitespace
+  time = time.trim();
+
+  // Determine if the time is AM or PM
+  const isPM = time.includes('PM');
+  const isAM = time.includes('AM') || (isEndTime && !isPM);  // Assuming AM if it's the end time and 'PM' is not present
+
+  // Remove the 'AM' or 'PM' for splitting
+  time = time.replace('AM', '').replace('PM', '');
+
+  let [hours, minutes] = time.split(':').map(Number);
+
+  // Convert to 24-hour format if necessary
+  if (isPM && hours < 12) hours += 12;
+  if (isAM && hours === 12) hours = 0;
+
+  // Pad the hours with leading zero if needed
+  hours = hours.toString().padStart(2, '0');
+
+  // Return the formatted time
+  return `${hours}:${minutes.toString().padStart(2, '0')}`;
+}
+
+function convertWeekdaysToArray(weekdays) {
+  const daysMapping = { M: 'Monday', T: 'Tuesday', W: 'Wednesday', R: 'Thursday', F: 'Friday' };
+  return weekdays.split('').map(day => daysMapping[day]);
+}
 
 
 function App() {
@@ -68,6 +101,7 @@ function App() {
   const [courseAreas, setCourseAreas] = useState([]);
   const [filteredCourses, setFilteredCourses] = useState([]);
   const [addedCourses, setAddedCourses] = useState([]);
+  const [coursesToShowOnCalendar, setCoursesToShowOnCalendar] = useState([]);
   const [expandedBlocks, setExpandedBlocks] = useState({});
   const [masterCourses, setMasterCourses] = useState([]);
   const [uid, setUid] = useState(null);
@@ -126,28 +160,32 @@ function App() {
   // below are the functions for adding to our 3 schedules, need to define here to access in both calendar and search 
   // Assuming you've already initialized Firebase and have the `database` object as shown above
 
-const addCourse = (course) => {
-  setCalendars((prevCalendars) => {
-    // Check if the course is already in the active schedule
-    const isCourseAlreadyAdded = (prevCalendars[activeCalendar] || []).some((c) => c.Name === course.Name);
-
-    if (isCourseAlreadyAdded) {
-      // If the course is already added, do not modify the calendars
-      return prevCalendars;
-    } else {
-      // If not, add the new course to the active schedule
-      const updatedCalendars = {
-        ...prevCalendars,
-        [activeCalendar]: [...(prevCalendars[activeCalendar] || []), course],
-      };
-
-      // Save the updated calendars to Firebase
-      saveCoursesToFirebase(updatedCalendars);
-
-      return updatedCalendars;
-    }
-  });
-};
+  const addCourse = (courseToAdd) => {
+    setCalendars((prevCalendars) => {
+      const isCourseAlreadyAdded = (prevCalendars[activeCalendar] || []).some(c => c.CourseCode === courseToAdd.CourseCode);
+      if (isCourseAlreadyAdded) {
+        return prevCalendars;
+      } else {
+        const updatedCourse = {
+          ...courseToAdd,
+          schedules: courseToAdd.schedules.map(schedule => ({
+            ...schedule,
+            startTime: convertTimeTo24HourFormat(schedule.startTime),
+            endTime: convertTimeTo24HourFormat(schedule.endTime),
+            weekdays: convertWeekdaysToArray(schedule.weekdays)
+          }))
+        };
+        console.log('Course before adding to calendar:', updatedCourse);
+        const updatedCalendars = {
+          ...prevCalendars,
+          [activeCalendar]: [...(prevCalendars[activeCalendar] || []), updatedCourse],
+        };
+        saveCoursesToFirebase(updatedCalendars);
+        return updatedCalendars;
+      }
+    });
+  };
+  
 
 const removeCourse = (courseToRemove) => {
   setCalendars((prevCalendars) => {
@@ -198,7 +236,7 @@ const removeCourse = (courseToRemove) => {
       .then(response => setCourseAreas(response.data))
       .catch(error => console.error("Error fetching course areas", error));
   }, []);
-
+  console.log('currentCourses:', currentCourses);
   return (
     <Router>
       <Routes>

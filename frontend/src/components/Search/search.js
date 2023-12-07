@@ -7,12 +7,45 @@ import axios from 'axios';
 const API_BASE_URL = 'https://api.pomona.edu/api';
 const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206';
 // Converts time from 12-hour format to 24-hour format
-function convertTimeTo24HourFormat(time) {
-  let [hours, minutes] = time.match(/\d+/g).map(Number);
-  if (time.includes('PM') && hours < 12) hours += 12;
-  if (time.includes('AM') && hours === 12) hours = 0;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+// Converts time from 12-hour format to 24-hour format for both start and end times
+function convertTimeTo24HourFormat(fullTimeString) {
+  if (!fullTimeString) {
+    console.error('Time string is null or undefined');
+    return { startTime: null, endTime: null };
+  }
+
+  // Extract start and end times
+  let [startTime, endTime] = fullTimeString.split('-').map(t => t.trim());
+
+  // Determine if the time contains AM or PM
+  const containsAM = fullTimeString.includes('AM');
+  const containsPM = fullTimeString.includes('PM');
+
+  // Process start time
+  startTime = startTime.replace('AM', '').replace('PM', '');
+  let [startHours, startMinutes] = startTime.split(':').map(Number);
+  if (containsPM && startHours < 12) startHours += 12;
+  if (containsAM && startHours === 12) startHours = 0;
+
+  // Process end time
+  endTime = endTime.replace('AM', '').replace('PM', '');
+  let [endHours, endMinutes] = endTime.split(':').map(Number);
+  if (containsPM && endHours < 12) endHours += 12;
+  if ((containsAM || !containsPM) && endHours === 12) endHours = 0;
+
+  // Pad hours with leading zero if needed
+  startHours = startHours.toString().padStart(2, '0');
+  endHours = endHours.toString().padStart(2, '0');
+
+  // Return the formatted times
+  return {
+    startTime: `${startHours}:${startMinutes.toString().padStart(2, '0')}`,
+    endTime: `${endHours}:${endMinutes.toString().padStart(2, '0')}`
+  };
 }
+
+
+
 
 // Converts a string of weekdays into an array
 function convertWeekdaysToArray(weekdays) {
@@ -25,25 +58,32 @@ const fetchCourses = async (termKey, courseAreaCode) => {
     const response = await axios.get(`${API_BASE_URL}/Courses/${termKey}/${courseAreaCode}/?api_key=${API_KEY}`);
     const apiCourses = response.data;
     return apiCourses.map(apiCourse => {
-      // need to implement correct scheduling logic
-      let schedules = apiCourse.Schedules ? apiCourse.Schedules.map(s => {
         // Extract and format the meetTime, room, and weekdays
-        const [time, location] = s.MeetTime.split('.'); // Assumes format "01:15-02:30PM. RN Room 104"
-        const [startTime, endTime] = time.split('-').map(t => convertTimeTo24HourFormat(t.trim())); // Implement this conversion
-        return {
-          startTime,
-          endTime,
-          room: s.Room,
-          weekdays: convertWeekdaysToArray(s.Weekdays),
-          buildingCode: s.BuildingCode,
-          building: s.Building,
-          campus: s.Campus,
-          meetTime: s.MeetTime,
-          room: s.Room,
-          weekdays: s.Weekdays
-        };
-      }) : [];
-
+        const schedules = apiCourse.Schedules && Array.isArray(apiCourse.Schedules) 
+        ? apiCourse.Schedules.map(s => {
+          const [time, location] = s.MeetTime.split('.');
+          let startTime = null;
+          let endTime = null;
+          
+          if (time.match(/\d+:\d+-\d+:\d+/)) { // Check if time matches expected format
+            const { startTime: convertedStartTime, endTime: convertedEndTime } = convertTimeTo24HourFormat(time);
+            startTime = convertedStartTime;
+            endTime = convertedEndTime;
+          }
+        
+          return {
+            startTime,
+            endTime,
+            room: s.Room,
+            weekdays: convertWeekdaysToArray(s.Weekdays),
+            buildingCode: s.BuildingCode,
+            building: s.Building,
+            campus: s.Campus,
+            meetTime: s.MeetTime,
+            room: s.Room,
+            weekdays: s.Weekdays
+          };
+        }) : [];
       let instructors = apiCourse.Instructors ? apiCourse.Instructors.map(instr => ({
         emailAddress: instr.EmailAddress,
         name: instr.Name,
@@ -183,7 +223,8 @@ const Search = ({
                       <Typography variant="body2">Code: {course.CourseCode}</Typography>
                       <Typography variant="body2">Department: {course.department}</Typography>
                       <Typography variant="body2">Credits: {course.credits}</Typography>
-                      <Typography variant="body2">Status: {course.courseStatus}</Typography>
+                      <Typography variant="body2">Open?: {course.courseStatus}</Typography>
+
                       {course.schedules.map((schedule, index) => (
                       <Typography variant="body2" key={index}>
                         {`${Array.isArray(schedule.weekdays) ? schedule.weekdays.join(', ') : schedule.weekdays}: ${schedule.startTime} - ${schedule.endTime} at ${schedule.room}`}
