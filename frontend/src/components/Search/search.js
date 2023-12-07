@@ -119,6 +119,111 @@ const fetchCourses = async (termKey, courseAreaCode) => {
   }
 };
 const Search = ({
+  expandedBlocks,
+  addCourse,
+  removeCourse,
+  toggleClassBlock,
+  handleClassClick,
+  courseAreas,
+}) => {
+  const [courses, setCourses] = useState([]);
+  const [selectedArea, setSelectedArea] = useState('');
+  const [dropdownVisible, setDropdownVisible] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const coursesPerPage = 20;
+  const indexOfLastCourse = currentPage * coursesPerPage;
+  const indexOfFirstCourse = indexOfLastCourse - coursesPerPage;
+  const currentCourses = courses && courses.length > 0 
+    ? courses.slice(indexOfFirstCourse, indexOfLastCourse)
+    : [];
+
+  const paginate = (pageNumber) => setCurrentPage(pageNumber);
+
+  useEffect(() => {
+    if (selectedArea) {
+      fetchCourses('2023;FA', selectedArea).then(fetchedCourses => {
+        setCourses(fetchedCourses);
+      });
+    }
+  }, [selectedArea]);
+
+  const handleAreaChange = (event) => {
+    setSelectedArea(event.target.value);
+  };
+
+  const toggleDropdown = () => {
+    setDropdownVisible(!dropdownVisible);
+  };
+
+  return (
+    <div className="search">
+      <select value={selectedArea} onChange={handleAreaChange}>
+        {courseAreas.map(area => (
+          <option key={area.Code} value={area.Code}>{area.Description}</option>
+        ))}
+      </select>
+      <button onClick={toggleDropdown}>
+        {dropdownVisible ? 'Hide Courses' : 'Show Courses'}
+      </button>
+      {dropdownVisible && (
+        <div className="course-list-container">
+          <div className="course-list" style={{ maxHeight: '600px', overflowY: 'auto' }}>
+            {currentCourses.map((course) => (
+              <Paper elevation={3} className="classBlock" style={{ height: '75px' }} key={course.CourseCode} onClick={() => handleClassClick(course)}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', padding: '10px' }}>
+                <div style={{ flexGrow: 1 }}>
+                  <Typography variant="h6">{`${course.CourseCode} - ${course.name}`}</Typography>
+                  {course.schedules.map((schedule, index) => (
+                    <Typography variant="body2" key={index}>
+                      {`${Array.isArray(schedule.weekdays) ? schedule.weekdays.join(', ') : schedule.weekdays}: ${schedule.startTime} - ${schedule.endTime} at ${schedule.room}`}
+                    </Typography>
+                  ))}
+                </div>
+                <div>
+                  <Button
+                    className="small-button"
+                    variant="outlined"
+                    color="primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addCourse(course);
+                    }}
+                  >
+                    +
+                  </Button>
+                  <Button
+                    className="small-button"
+                    variant="outlined"
+                    color="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeCourse(course);
+                    }}
+                  >
+                    -
+                  </Button>
+                </div>
+              </div>
+            </Paper>
+            
+            ))}
+          </div>
+          <div className="pagination">
+            {[...Array(Math.ceil(courses.length / coursesPerPage)).keys()].map(number => (
+              <button key={number} onClick={() => paginate(number + 1)}>
+                {number + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default Search;
+/*
+const Search = ({
   onSearch,
   expandedBlocks,
   addCourse,
@@ -289,3 +394,4 @@ const Search = ({
 };
 
 export default Search;
+*/
