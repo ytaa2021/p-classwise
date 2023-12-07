@@ -11,13 +11,28 @@ const daysOfWeek = ['Time', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Frida
    2: [],
    3: [],
  };
+ 
+
+ function convertWeekdaysToArray(weekdays) {
+  const daysMapping = { 'M': 'Monday', 'T': 'Tuesday', 'W': 'Wednesday', 'R': 'Thursday', 'F': 'Friday' };
+  return weekdays.split('').map(day => daysMapping[day]);
+}
+
+// Converts time from 12-hour format ("2:30 PM") to 24-hour format ("14:30")
+function convertTimeTo24HourFormat(time) {
+  let [hours, minutesPart] = time.split(':');
+  let minutes = minutesPart.substring(0, 2);
+  const isPM = minutesPart.includes('PM');
+  hours = isPM ? (hours % 12) + 12 : hours % 12;
+  return `${String(hours).padStart(2, '0')}:${minutes}`;
+}
 
 const calculateCourseStyle = (course) => {
-  console.log("bebe")
-  console.log(course.startTime)
   const hourHeight = 50;
-  const topOffset = (course.startTime - 8) * hourHeight;
-  const courseHeight = (course.endTime - course.startTime) * hourHeight;
+  const startHour = parseTime(course.startTime);
+  const endHour = parseTime(course.endTime);
+  const topOffset = (startHour - 8) * hourHeight;
+  const courseHeight = (endHour - startHour) * hourHeight;
 
   return {
     top: `${topOffset}px`,
@@ -25,17 +40,27 @@ const calculateCourseStyle = (course) => {
   };
 };
 
+ const parseTime = (timeString) => {
+  const [hours, minutes] = timeString.split(':');
+  return parseInt(hours) + parseInt(minutes) / 60;
+};
+
+
 const Scheduler = ({ currentCourses, addCourse, removeCourse, initialSchedules , handleClassClick}) => {
 
   const [activeCalendar, setActiveCalendar] = useState(1);
   const coursesByDay = {};
-
-  daysOfWeek.forEach((day) => {
-    coursesByDay[day] = currentCourses.filter((course) =>
-      Array.isArray(course.day) ? course.day.includes(day) : course.day === day
+  daysOfWeek.slice(1).forEach((day) => {
+    coursesByDay[day] = currentCourses.filter(course => 
+      course.schedules.some(schedule => convertWeekdaysToArray(schedule.weekdays).includes(day) &&
+        schedule.startTime && schedule.endTime)
+      .map(course => ({
+        ...course,
+        startTime: convertTimeTo24HourFormat(course.schedules[0].startTime),
+        endTime: convertTimeTo24HourFormat(course.schedules[0].endTime)
+      }))
     );
   });
-
   const switchCalendar = (calendarNumber) => {
     setActiveCalendar(calendarNumber);
   };
