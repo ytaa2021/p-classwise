@@ -5,7 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import axios from 'axios';
 
 const API_BASE_URL = 'https://api.pomona.edu/api';
-const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206';
+const API_KEY = 'encrypt';
 // Converts time from 12-hour format to 24-hour format
 // Converts time from 12-hour format to 24-hour format for both start and end times
 function convertTimeTo24HourFormat(fullTimeString) {
