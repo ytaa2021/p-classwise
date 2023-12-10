@@ -33,7 +33,7 @@ import Auth from './Auth'
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 
 const API_BASE_URL = 'https://api.pomona.edu/api';
-const API_KEY = 'b2dde85c249d4d07bdfe152ae51a3206'; // Ideally should be in an .env file
+const API_KEY = 'encrypt';
 
 
 
